@@ -13,10 +13,15 @@
 
 ## Bitácora
 
+### 2026-10-25 · `capabilities` completo y módulo 0.2.0
+
+- **Revertido:** el manifest vuelve a declarar `details` y `pages` en `capabilities`, que es lo que el módulo implementa y extrae del sitio. En el repo de la app se amplió el contrato para admitirlas.
+- **Versión 0.2.0** (minor por capacidades nuevas declaradas) y paquete republicado: nuevo SHA-256 y tamaño en `index.json`; el `.zip` de `0.1.0` queda retirado.
+
 ### 2026-10-25 · Módulo `zonatmo` y primera publicación del repo
 
 - **Dominio nuevo:** `zonatmo.com` ya no resuelve; el sitio vive en `https://zonatmo.org`. El ejemplo `ExampleModule` (id `tmo`) se retira porque sus rutas (`/populars`, `/latest_uploads`, `/library?title=`) dan 404 en el dominio vigente.
-- **Módulo `zonatmo/`:** listas y búsqueda por `/biblioteca` (`order_item`, `filter_by=title`, paginación con `page` y `a[rel=next]`); ficha con capítulos y releases (varias versiones por capítulo); lector en una sola vista (`img.reader-image`, con `Referer` y `User-Agent`). `capabilities` declara solo `popular`, `latest`, `search`, que es lo que admite el contrato; `details` y `pages` son obligatorias y no se declaran.
+- **Módulo `zonatmo/`:** listas y búsqueda por `/biblioteca` (`order_item`, `filter_by=title`, paginación con `page` y `a[rel=next]`); ficha con capítulos y releases (varias versiones por capítulo); lector en una sola vista (`img.reader-image`, con `Referer` y `User-Agent`). `capabilities` declara las cinco operaciones que el módulo implementa (`popular`, `latest`, `search`, `details`, `pages`); el contrato de la app se amplió para admitir `details` y `pages`.
 - **Relacionados:** la ficha incluye `related` (carrusel «Relacionados», 9 tarjetas) como campo adicional, a petición del humano. El contrato de la app aún no define ese campo; el runtime no valida la forma de la respuesta, así que no rompe nada.
 - **Verificado:** 23/23 comprobaciones contra fixtures y en vivo (listas, paginación, búsqueda con y sin resultados, dos fichas —finalizada y en emisión—, capítulo con dos versiones, lector de dos series y errores tipados).
 - **Publicado:** `packages/zonatmo-0.1.0.zip` y la primera `index.json` (`ryuunest-repo` v1). `.scrape-tmp/` entra en `.gitignore` (fixtures temporales de análisis, no se publican).
