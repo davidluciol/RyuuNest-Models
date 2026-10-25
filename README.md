@@ -36,6 +36,14 @@ Las reglas para contribuir y para agentes están en [`AGENTS.md`](AGENTS.md); el
 3. Genera el `.zip`, calcula su **SHA-256** y su tamaño, y actualiza la entrada en `index.json` (vía manual o con el CLI; detalle en AGENTS.md §2).
 4. Abre un PR: carpeta + `.zip` + entrada del `index.json`. Un mantenedor revisa permisos, topes y manifest antes de fusionar.
 
+## Proceso Git
+
+- Siempre debe crearse una rama del tipo `site-name` y no subir nada a la rama `main` directamente.
+- La rama `main` se actualizará con los cambios de las ramas `site-name`.
+- El índice `index.json` debe actualizarse en cada PR.
+- Los cambios en el índice deben ir en un PR separado de los cambios en el módulo.
+- Una vez que los test y el control de calidad estén correctos, se debe proceder a abrir el PR para que los mantenedores revisen y aprueben los cambios.
+
 ## Licencia
 
 El código de este repo es **GPL-3.0** (los derivados también abiertos). Los módulos son obras independientes de cada autor, que decide su licencia. Esto no es asesoría legal.
