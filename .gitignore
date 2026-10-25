@@ -1,0 +1,5 @@
+# HTML y fixtures de trabajo del análisis (temporales, no se publican)
+.scrape-tmp/
+
+# Dependencias locales
+node_modules/

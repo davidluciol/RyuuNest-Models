@@ -8,10 +8,19 @@
   - `RepoRegistry.addRepo(url)`: descarga y valida el `index.json` por HTTPS (URL canónica HTTPS, RF-2) y guarda el índice.
   - `InstallFlow` (RF-4, AC-8): único punto de entrada para instalar; exige confirmación manual (`confirmed`) y **reforzada** para módulos `script`; rechaza re-instalar un módulo ya instalado.
   - `PackageInstaller.install()`: descarga el `.zip` por HTTPS (las rutas del índice se resuelven contra la URL del repo), verifica **SHA-256**, aplica los topes de tamaño (paquete ≤ 2 MB, descomprimido ≤ 5 MB, ≤ 50 archivos), protege contra zip-slip y valida el manifest y la existencia del archivo de entrada.
-- **Primer módulo: `tmo`** (port de `logicTMO.py`); formato exacto de este repo (`manifest.json` + `module.js`). Pendiente de la ejecución real contra el sitio por parte del humano (P-76 del repo principal) y de empaquetar y añadir a `index.json`.
+- **Primer módulo: `zonatmo`** (`script`) para `https://zonatmo.org`, con `manifest.json` + `module.js` + `bin/`. Pendiente solo la ejecución dentro de la app por parte del humano. El antiguo ejemplo `tmo` (`zonatmo.com`) quedó retirado: ese dominio ya no resuelve.
 - **Pendiente del lado de la app (no de este repo):** el adaptador `Http` real de la plataforma (la app nativa aún no rellena `HttpResponse.url`, anotado en P-74) y las pantallas de Fuentes/confirmación que conecten `InstallFlow`.
 
 ## Bitácora
+
+### 2026-10-25 · Módulo `zonatmo` y primera publicación del repo
+
+- **Dominio nuevo:** `zonatmo.com` ya no resuelve; el sitio vive en `https://zonatmo.org`. El ejemplo `ExampleModule` (id `tmo`) se retira porque sus rutas (`/populars`, `/latest_uploads`, `/library?title=`) dan 404 en el dominio vigente.
+- **Módulo `zonatmo/`:** listas y búsqueda por `/biblioteca` (`order_item`, `filter_by=title`, paginación con `page` y `a[rel=next]`); ficha con capítulos y releases (varias versiones por capítulo); lector en una sola vista (`img.reader-image`, con `Referer` y `User-Agent`). `capabilities` declara solo `popular`, `latest`, `search`, que es lo que admite el contrato; `details` y `pages` son obligatorias y no se declaran.
+- **Relacionados:** la ficha incluye `related` (carrusel «Relacionados», 9 tarjetas) como campo adicional, a petición del humano. El contrato de la app aún no define ese campo; el runtime no valida la forma de la respuesta, así que no rompe nada.
+- **Verificado:** 23/23 comprobaciones contra fixtures y en vivo (listas, paginación, búsqueda con y sin resultados, dos fichas —finalizada y en emisión—, capítulo con dos versiones, lector de dos series y errores tipados).
+- **Publicado:** `packages/zonatmo-0.1.0.zip` y la primera `index.json` (`ryuunest-repo` v1). `.scrape-tmp/` entra en `.gitignore` (fixtures temporales de análisis, no se publican).
+- **Decisiones:** `latest` usa `order_item=creation&order_dir=desc` («Últimos añadidos»), porque el sitio no ofrece orden por «actualizado». En «Relacionados» se omite el badge de puntuación cuando es `0.00` (sin votos).
 
 ### 2026-10-25 · Creación del repo de módulos e instrucciones
 

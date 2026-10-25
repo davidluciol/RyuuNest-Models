@@ -1,0 +1,16 @@
+{
+  "id": "zonatmo",
+  "name": "ZonaTMO",
+  "version": "0.1.0",
+  "apiVersion": 1,
+  "runtime": "script",
+  "kinds": ["manga", "manhwa", "manhua", "comic"],
+  "lang": "es",
+  "nsfw": true,
+  "baseUrl": "https://zonatmo.org",
+  "capabilities": ["popular", "latest", "search"],
+  "permissions": {
+    "domains": ["zonatmo.org", "storage.zonatmo.org", "storage2.zonatmo.org"]
+  },
+  "entry": "module.js"
+}
