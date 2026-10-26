@@ -3,3 +3,4 @@
 
 # Dependencias locales
 node_modules/
+.playwright-mcp/
