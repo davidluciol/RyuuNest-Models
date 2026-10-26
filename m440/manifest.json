@@ -8,7 +8,7 @@
   "lang": "es",
   "nsfw": true,
   "baseUrl": "https://m440.in",
-  "capabilities": ["popular", "latest", "search"],
+  "capabilities": ["popular", "latest", "search", "details", "pages"],
   "permissions": {
     "domains": ["m440.in", "s1.m440.in", "s2.m440.in"]
   },
