@@ -14,6 +14,17 @@
 
 ## Bitácora
 
+### 2026-10-26 · Módulo `m440` (listas en el home y capítulos cifrados)
+
+- **Acceso:** `https://m440.in` responde por HTTP simple (200, HTML de Laravel). Cloudflare está delante como CDN, sin reto real; `/manga-list` sí devuelve 403 con «Just a moment…» y no se usa. El probe marca `risk: high` solo por una meta de verificación de la red publicitaria `juicyads`; no hay popups ni redirecciones, así que **no se abrió navegador** en ningún momento (solo Nivel 1).
+- **Listas:** `popular` son las 39 tarjetas de «Actualizaciones populares Manga» (`ul.hot-thumbnails li.span3`); `latest` son las 235 filas de «Últimas actualizaciones Manga» (231 series únicas: se deduplican por ruta). El home ignora `?page=`, así que `page > 1` devuelve vacío.
+- **Buscador:** `/search?q=…` devuelve un JSON de autocompletado con 20 resultados como máximo (título, slug, portada, estado y categorías). No pagina: `hasNext: false`.
+- **Ficha:** los datos de la serie viajan en `const jsmangas = {…}` y **el listado de capítulos va cifrado** en `const UsaPoncho = "…"` con AES-256-CBC (CryptoJS, frase de paso fija, sal e IV aleatorios por página). Como el host no ofrece criptografía, se reimplementaron AES-256-CBC y MD5 (`EVP_BytesToKey`) en `bin/utils/crypto.js`, sin librerías externas ni ejecutar JS del sitio. Verificado descifrando 839 capítulos (One Piece), 180 (SPY X FAMILY) y 30 (Seihantai na Kimi to Boku); ~44 ms para el mayor en Node.
+- **Lector:** todas las páginas del capítulo llegan en un solo HTML (`img[data-src]`); la primera se duplica en un `img.scan-page` con `src`, por eso solo se usa `data-src`. Las imágenes están en `s1.m440.in` y `s2.m440.in` y exigen `Referer` (200 con él, 403 sin él). `permissions.domains` incluye `m440.in`, `s1.m440.in` y `s2.m440.in`; `s3/s4` no existen.
+- **Verificado:** arnés local con fixtures y los mismos `htmlparser2` + `css-select` del repo principal (popular, latest, búsqueda con y sin resultados, tres fichas —en emisión y finalizada—, lector de dos capítulos con 19 y 40 imágenes, y errores 404/BLOCKED). Además, prueba en vivo de las cinco operaciones y descarga de dos imágenes con las cabeceras del módulo.
+- **Decisiones:** `nsfw: true` (el sitio tiene ecchi/mature evidente); `kinds: ["manga","manhwa"]` (verificados; no se declaran manhua/cómic). `capabilities` declara solo `popular`, `latest` y `search` porque el validador del SDK en este clon (`MODULE_CAPABILITIES`) rechaza `details` y `pages`; el módulo **sí implementa** `details` y `pages`, que el runtime exige siempre. Discrepancia pendiente: `AGENTS.md` y los módulos `zonatmo`/`yupmanga` declaran las cinco, y hoy no pasan `ryuunest-module validate`.
+- **Pendiente:** probar dentro de la app; si el sitio rota la frase de paso del listado, `details` dará `UNSUPPORTED` hasta actualizar `CHAPTER_KEY`. No se publicó: no hay `.zip` ni entrada en `index.json` (rama `feat/m440-module`).
+
 ### 2026-10-26 · Módulo `yupmanga` (con reto de lector)
 
 - **Acceso:** el home devuelve **403 «Attention Required!» de Cloudflare** a `fetch` de Node y a `curl` (huella TLS de cliente no-navegador). `robots.txt` sí responde y desautoriza `/ajax/`, `/reader2.php`, `/reader_v2.php` y las URLs con `?page=`. A petición del humano se usó **impersonación TLS (curl_cffi)** solo como herramienta local de análisis y prueba; el módulo **no** incluye ninguna librería ni técnica de evasión: usa únicamente `host.fetch`.

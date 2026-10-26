@@ -1,0 +1,16 @@
+{
+  "id": "m440",
+  "name": "M440",
+  "version": "0.1.0",
+  "apiVersion": 1,
+  "runtime": "script",
+  "kinds": ["manga", "manhwa"],
+  "lang": "es",
+  "nsfw": true,
+  "baseUrl": "https://m440.in",
+  "capabilities": ["popular", "latest", "search"],
+  "permissions": {
+    "domains": ["m440.in", "s1.m440.in", "s2.m440.in"]
+  },
+  "entry": "module.js"
+}
