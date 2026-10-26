@@ -9,9 +9,18 @@
   - `InstallFlow` (RF-4, AC-8): único punto de entrada para instalar; exige confirmación manual (`confirmed`) y **reforzada** para módulos `script`; rechaza re-instalar un módulo ya instalado.
   - `PackageInstaller.install()`: descarga el `.zip` por HTTPS (las rutas del índice se resuelven contra la URL del repo), verifica **SHA-256**, aplica los topes de tamaño (paquete ≤ 2 MB, descomprimido ≤ 5 MB, ≤ 50 archivos), protege contra zip-slip y valida el manifest y la existencia del archivo de entrada.
 - **Primer módulo: `zonatmo`** (`script`) para `https://zonatmo.org`, con `manifest.json` + `module.js` + `bin/`. Pendiente solo la ejecución dentro de la app por parte del humano. El antiguo ejemplo `tmo` (`zonatmo.com`) quedó retirado: ese dominio ya no resuelve.
+- **Segundo módulo: `yupmanga`** (`script`) para `https://www.yupmanga.com`, con las cinco operaciones. Ojo: el sitio bloquea clientes HTTP sin huella de navegador (Cloudflare WAF) y el lector exige resolver su reto JS y esperar el interstitial de anuncio; ver la bitácora. Pendiente la prueba real dentro de la app.
 - **Pendiente del lado de la app (no de este repo):** el adaptador `Http` real de la plataforma (la app nativa aún no rellena `HttpResponse.url`, anotado en P-74) y las pantallas de Fuentes/confirmación que conecten `InstallFlow`.
 
 ## Bitácora
+
+### 2026-10-26 · Módulo `yupmanga` (con reto de lector)
+
+- **Acceso:** el home devuelve **403 «Attention Required!» de Cloudflare** a `fetch` de Node y a `curl` (huella TLS de cliente no-navegador). `robots.txt` sí responde y desautoriza `/ajax/`, `/reader2.php`, `/reader_v2.php` y las URLs con `?page=`. A petición del humano se usó **impersonación TLS (curl_cffi)** solo como herramienta local de análisis y prueba; el módulo **no** incluye ninguna librería ni técnica de evasión: usa únicamente `host.fetch`.
+- **Módulo:** listas por `/top.php` («Más leídas», 24) y home («Últimas series», 36); búsqueda en `/search.php?q=…&page=N`; ficha con géneros, etiquetas, autor, dirección, estado y **series similares** (`/ajax/load_similar_series.php`); capítulos por `/ajax/load_chapters.php` (se ordenan de más nuevo a más viejo). `id` de serie y release conservan la query (`/series.php?id=…`) porque el id vive ahí.
+- **Lector (excepción deliberada):** el capítulo se abre con un **reto JS por petición** (`get_anchor` + `get_challenge` + `open_chapter`) que se resuelve extrayendo sus constantes y reproduciendo la cuenta, sin `eval`; después el sitio exige el **interstitial de anuncio** (~8 s) antes de servir `reader_v2.php`. El módulo completa ese trámite con `setTimeout` (9 s) y lee `readerPageKeys`, que trae todas las imágenes del capítulo en un solo HTML. Depende de que `host.fetch` acepte POST, cabecera `Cookie` y exponga `set-cookie`; si no, el lector fallará aunque las listas funcionen.
+- **Verificado:** 13/13 en vivo a través de un proxy local con huella de navegador (popular, latest, búsqueda con página 2, dos fichas —una finalizada y otra en emisión—, relacionados, capítulos y lector de dos series: 9 y 36 imágenes). **Sin verificar:** el comportamiento de `host.fetch` real de la app frente a Cloudflare.
+- **Publicado:** `packages/yupmanga-0.1.0.zip` y entrada en `index.json`. Dominios: `www.yupmanga.com`.
 
 ### 2026-10-25 · `capabilities` completo y módulo 0.2.0
 

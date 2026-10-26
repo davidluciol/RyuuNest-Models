@@ -2,7 +2,7 @@
   "format": "ryuunest-repo",
   "version": 1,
   "name": "RyuuNest-Models",
-  "updatedAt": "2026-10-25T23:07:46.937Z",
+  "updatedAt": "2026-10-26T00:09:47.707Z",
   "modules": [
     {
       "id": "zonatmo",
@@ -19,6 +19,22 @@
       "package": "packages/zonatmo-0.2.0.zip",
       "sha256": "462fa4092be75309741d0660e75897d4656f480af443267a2ffc15f2ada77a61",
       "size": 9269
+    },
+    {
+      "id": "yupmanga",
+      "name": "YupManga",
+      "version": "0.1.0",
+      "apiVersion": 1,
+      "runtime": "script",
+      "kinds": ["manga", "manhwa", "manhua", "comic"],
+      "lang": "es",
+      "nsfw": true,
+      "permissions": {
+        "domains": ["www.yupmanga.com"]
+      },
+      "package": "packages/yupmanga-0.1.0.zip",
+      "sha256": "0f9974ee20319ced44273b630f25b4ed73b3cb6cb270b0b16daa04a61c00da0a",
+      "size": 12768
     }
   ]
 }

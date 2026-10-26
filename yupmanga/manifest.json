@@ -1,0 +1,16 @@
+{
+  "id": "yupmanga",
+  "name": "YupManga",
+  "version": "0.1.0",
+  "apiVersion": 1,
+  "runtime": "script",
+  "kinds": ["manga", "manhwa", "manhua", "comic"],
+  "lang": "es",
+  "nsfw": true,
+  "baseUrl": "https://www.yupmanga.com",
+  "capabilities": ["popular", "latest", "search", "details", "pages"],
+  "permissions": {
+    "domains": ["www.yupmanga.com"]
+  },
+  "entry": "module.js"
+}
