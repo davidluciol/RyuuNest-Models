@@ -10,6 +10,8 @@ export const ACCEPT_LANGUAGE = "es-MX,es;q=0.9,en;q=0.8";
 /** Rutas del sitio. El home trae las dos listas y el buscador es un JSON. */
 export const ROUTES = {
   home: `${BASE_URL}/`,
+  /** Fragmento HTML del directorio (`/manga-list`); acepta cat, alpha, sortBy y asc. */
+  catalog: (params) => `${BASE_URL}/filterList?${new URLSearchParams(params).toString()}`,
   search: (query) => `${BASE_URL}/search?q=${encodeURIComponent(query)}`,
 };
 
@@ -28,6 +30,14 @@ export const SELECTORS = {
     genre: "h3 span.label",
     date: "small",
     chapter: "h6.events-subtitle a",
+  },
+  catalog: {
+    card: "div.col-sm-6 div.media",
+    link: "a.chart-title",
+    cover: "a.thumbnail img",
+    score: ".label-info",
+    info: ".media-body > div",
+    nextPage: "ul.pagination a[rel=next]",
   },
   search: {
     title: "a.chart-title",
@@ -54,3 +64,15 @@ export const CHAPTER_PAYLOAD = 'const UsaPoncho = "';
 export const CHALLENGE_TITLE = /just a moment|attention required|checking your browser/iu;
 export const DEMOGRAPHIC_ROW = /<dt>\s*Demogr[áa]fico\s*<\/dt>\s*<dd[^>]*>([\s\S]*?)<\/dd>/iu;
 export const IMAGE_SOURCE = /src=['"]([^'"]+)['"]/iu;
+
+/** Géneros del directorio: `cat` es el id numérico del sitio. */
+export const CATEGORIES = [
+  "Action", "Adventure", "Comedy", "Doujinshi", "Drama", "Ecchi", "Fantasy", "Gender Bender",
+  "Harem", "Historical", "Horror", "Josei", "Martial Arts", "Mature", "Mecha", "Mystery",
+  "One Shot", "Psychological", "Romance", "School Life", "Sci-fi", "Seinen", "Shoujo",
+  "Shoujo Ai", "Shounen", "Shounen Ai", "Slice of Life", "Sports", "Supernatural", "Tragedy",
+  "Yaoi", "Yuri", "Hentai", "Smut",
+];
+
+/** Orden del directorio: `views` va de mayor a menor y `name` de la A a la Z. */
+export const SORTS = { name: { sortBy: "name", asc: "true" }, views: { sortBy: "views", asc: "false" } };
