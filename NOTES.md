@@ -76,3 +76,13 @@
 
 1. **Existencia del repo:** ¿está ya creado `davidluciol/RyuuNest-Models` en GitHub, o se creará al subir estos documentos? (de esto depende la URL que se anuncie en la app).
 2. **Rama por defecto** del repo de módulos (`main`): confirmar al crearlo, porque la URL del `index.json` que se añade en la app la incluye.
+
+### 2026-11-13 · `zonatmo` 0.3.0: respaldo `zonatmo.to`, home/filtros dinámicos y sin `nsfw`
+
+- **Escalera (§6):** Nivel 0 (HTTP simple con Node) bastó, sin llegar a Scrapling ni Maxun. `zonatmo.org` es HTML (`/biblioteca`, `data-identifier`, `a[rel=next]`). `zonatmo.to` (y `zonatmo.net`, mismo motor) es un WordPress con interfaz JS: `/biblioteca` da 404, pero la propia interfaz usa JSON en `/wp-api/api`. El sanitizador no halló frases sospechosas.
+- **Espejo elegido: `zonatmo.to`** (se descartó `.net` porque comparte motor pero se prefirió el dominio del CDN de imágenes). Endpoints: `listing/manga?page&postsPerPage&orderBy&order&search&genres&type&status&demography&erotic` (el parámetro es `type`; `types` se ignora), `single/manga/<slug>` (portada), `single/manga/<slug>/chapters?page&postsPerPage=25&order=desc`, `single/manga/<slug>/<capítulo>` (trae `chapter.jit` e `images`) y `wp-json/seventi-manga/v1/manga/<id>` (descripción, géneros, estado). Imágenes: `https://cdn.zonatmo.to/manga/<jit>/<archivo>` (el `jit` es `manga_key/chapter_key`; el CDN responde sin `Referer`). `erotic=0` deja ~24 200 de ~30 700 series.
+- **Ids:** serie `/manga/<id>/<slug>`, release `/manga/<id>/<slug>/<capítulo>`; los del sitio principal son `/library/…`. Los ids se validan con `[\w%-]+` antes de armar URLs.
+- **Respaldo:** `withMirror` (`bin/catalog.js`) prueba `zonatmo.org` y, si falla con algo distinto de `NOT_FOUND`, `zonatmo.to`; si ambos fallan, devuelve el error del principal. Solo cubre popular/latest/search/home/list; `details`/`pages` van por el sitio al que pertenece el id.
+- **Contrato dinámico (§7):** `home` (Populares, Últimas añadidas, Mejor puntuadas), `list`, `filters` (orden, tipo, demografía, estado, género, contenido «Ocultar +18») y `search(query, page, filters)`; sin texto y sin filtros la búsqueda sigue devolviendo vacío. Sin verificar en la app (el SDK aún no admite estas operaciones).
+- **Manifest:** `version` 0.3.0, `nsfw: false` (a petición), `capabilities` suma `home/list/filters`, `permissions.domains` suma `zonatmo.to` y `cdn.zonatmo.to`. Prueba sin red: `RYUUNEST_REPO=<clon> node --test zonatmo/bin/zonatmo.test.js`. Comprobado en vivo con Node: búsqueda con filtros, home, ficha de 93 capítulos, 30 páginas y una imagen 200 `image/webp`.
+- **Pendiente:** `index.json` en PR aparte; BUGS.md anota además las portadas en blanco de m440 y yupmanga.

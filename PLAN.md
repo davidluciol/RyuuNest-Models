@@ -10,7 +10,7 @@ Objetivo: escalera de herramientas de scraping, reglas anti-inyección y módulo
 
 ## Fase B: contrato dinámico por sitio
 - [x] m440 0.2.0 (zip hecho; `index.json` pendiente en PR aparte)
-- [ ] zonatmo
+- [x] zonatmo 0.3.0 (zip hecho; `index.json` pendiente en PR aparte)
 - [ ] yupmanga
 
 Por sitio, en este orden: m440 (MangasIn), zonatmo, yupmanga.
