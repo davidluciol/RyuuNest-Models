@@ -1,6 +1,6 @@
-/** Listas de series: populares y últimas añadidas (misma rejilla de tarjetas). */
+/** Tarjetas de la biblioteca (rejilla común a todas las listas) → `{ items, hasNext }`. */
 
-import { ROUTES, SELECTORS } from "./config.js";
+import { SELECTORS } from "./config.js";
 import { fail } from "./utils/errors.js";
 import { loadDocument } from "./utils/http.js";
 import { kindOf } from "./utils/normalize.js";
@@ -66,17 +66,4 @@ export async function listPage(host, url) {
   const { document } = await loadDocument(host, url);
   const items = document.select(SELECTORS.card.root).map((row) => itemOf(row, url));
   return { items, hasNext: document.select(SELECTORS.nextPage).length > 0 };
-}
-
-function pageNumber(page) {
-  const value = Number(page);
-  return Number.isInteger(value) && value > 0 ? value : 1;
-}
-
-export function popular(host, page) {
-  return listPage(host, ROUTES.popular(pageNumber(page)));
-}
-
-export function latest(host, page) {
-  return listPage(host, ROUTES.latest(pageNumber(page)));
 }

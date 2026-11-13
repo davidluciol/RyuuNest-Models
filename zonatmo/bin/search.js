@@ -1,13 +1,12 @@
-/** Buscador de la biblioteca por título. */
+/** Buscador de la biblioteca: título y filtros opcionales (tipo, demografía, estado, género, orden). */
 
-import { ROUTES } from "./config.js";
-import { listPage } from "./home.js";
+import { browse } from "./catalog.js";
 
-export function search(host, query, page) {
+export function search(host, query, page, filters) {
   const text = String(query ?? "").trim();
-  const current = Number.isInteger(Number(page)) && Number(page) > 0 ? Number(page) : 1;
-  if (text === "") {
+  const active = Object.values(filters ?? {}).some((value) => value !== undefined && value !== "");
+  if (text === "" && !active) {
     return Promise.resolve({ items: [], hasNext: false });
   }
-  return listPage(host, ROUTES.search(text, current));
+  return browse(host, text, filters, page);
 }
