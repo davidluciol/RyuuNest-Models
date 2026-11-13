@@ -1,0 +1,4 @@
+{"error":false,"message":"","data":{"items":[
+{"_id":9101,"_type":"manga","is_erotic":0,"cover":"/2026/01/serie-espejo-uno.webp","title":"Serie Espejo Uno","slug":"serie-espejo-uno","score":"7.5","types":[87],"genres":[4,15],"status":[19],"demography":[45],"total_chapters":30,"updated_at":"2026-01-02 10:00:00"},
+{"_id":9102,"_type":"manga","is_erotic":1,"cover":"/2026/01/serie-espejo-dos.webp","title":"Serie Espejo Dos","slug":"serie-espejo-dos","score":"0.0","types":[14],"genres":[],"status":[],"demography":[],"total_chapters":0,"updated_at":"2026-01-02 10:00:00"}],
+"pagination":{"total":2,"per_page":24,"current_page":1,"total_pages":1,"has_previous":false,"has_next":true}}}

@@ -1,0 +1,5 @@
+{"error":false,"message":"","data":{"items":[
+{"id":5003,"manga_id":9101,"chapter_number":"2.00","slug":"serie-espejo-uno-capitulo-2b","release_date":"2026-01-03 10:00:00","group":{"id":2,"name":"Grupo B"}},
+{"id":5002,"manga_id":9101,"chapter_number":"2.00","slug":"serie-espejo-uno-capitulo-2","release_date":"2026-01-02 10:00:00","group":{"id":1,"name":"Grupo A"}},
+{"id":5001,"manga_id":9101,"chapter_number":"1.00","slug":"serie-espejo-uno-capitulo-1","release_date":"2026-01-01 10:00:00","group":{"id":1,"name":"Grupo A"}}],
+"pagination":{"total":3,"per_page":25,"current_page":1,"total_pages":1,"has_previous":false,"has_next":false}}}
