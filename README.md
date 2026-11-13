@@ -27,7 +27,7 @@ packages/…       ← los .zip publicados, referenciados desde index.json
 index.json       ← el índice que lee la app (ryuunest-repo v1)
 ```
 
-Las reglas para contribuir y para agentes están en [`AGENTS.md`](AGENTS.md); el cuaderno de trabajo, en [`NOTES.md`](NOTES.md).
+Las reglas para contribuir y para agentes están en [`AGENTS.md`](AGENTS.md); el cuaderno de trabajo, en [`NOTES.md`](NOTES.md); las herramientas de análisis, en [`tools/`](tools/README.md); los bugs por sitio, en [`BUGS.md`](BUGS.md).
 
 ## Cómo publicar un módulo
 

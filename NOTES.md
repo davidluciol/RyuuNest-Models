@@ -10,10 +10,25 @@
   - `PackageInstaller.install()`: descarga el `.zip` por HTTPS (las rutas del índice se resuelven contra la URL del repo), verifica **SHA-256**, aplica los topes de tamaño (paquete ≤ 2 MB, descomprimido ≤ 5 MB, ≤ 50 archivos), protege contra zip-slip y valida el manifest y la existencia del archivo de entrada.
 - **Primer módulo: `zonatmo`** (`script`) para `https://zonatmo.org`, con `manifest.json` + `module.js` + `bin/`. Pendiente solo la ejecución dentro de la app por parte del humano. El antiguo ejemplo `tmo` (`zonatmo.com`) quedó retirado: ese dominio ya no resuelve.
 - **Segundo módulo: `yupmanga`** (`script`) para `https://www.yupmanga.com`, con las cinco operaciones. Ojo: el sitio bloquea clientes HTTP sin huella de navegador (Cloudflare WAF) y el lector exige resolver su reto JS y esperar el interstitial de anuncio; ver la bitácora. Pendiente la prueba real dentro de la app.
-- **Tercer módulo: `m440`** (`script`) para `https://m440.in`, con las cinco operaciones: listas desde el home, búsqueda por el JSON de autocompletado, ficha con capítulos cifrados (AES) y lector en una sola vista. Publicado `0.1.0`; pendiente la prueba dentro de la app y ampliar `capabilities` en el SDK (hoy solo admite tres).
+- **Tercer módulo: `m440`** (`script`) para `https://m440.in`, con las cinco operaciones: listas desde el home, búsqueda por el JSON de autocompletado, ficha con capítulos cifrados (AES) y lector en una sola vista. Publicado `0.1.0` (la `0.2.0` con home dinámico está empaquetada, sin entrada en `index.json`); pendiente la prueba dentro de la app y ampliar `capabilities` en el SDK (hoy solo admite tres).
 - **Pendiente del lado de la app (no de este repo):** el adaptador `Http` real de la plataforma (la app nativa aún no rellena `HttpResponse.url`, anotado en P-74) y las pantallas de Fuentes/confirmación que conecten `InstallFlow`.
 
 ## Bitácora
+
+### 2026-11-13 · `m440` 0.2.0 (alias MangasIn): home y buscador dinámicos
+
+- **Escalera:** nivel 0 (HTTP simple) sirve el home y `/search?q=`, pero `/manga-list` y `/filterList` dan 403 «Just a moment…». `Fetcher` de Scrapling (huella de navegador) también 403; `StealthyFetcher` con `solve_cloudflare=True` sí (200). Scrapling se instaló en un venv local (`.scrape-tmp/venv`, ignorado por git); no se usó API Anything ni Maxun.
+- **Hallazgos del sitio:** el home solo trae «Actualizaciones populares» y «Últimas actualizaciones» (más «Leídos recientemente», que es del navegador y se ignora). `/releases` ignora `?page`. El directorio `/manga-list` carga sus listas por `GET /filterList?page&cat&alpha&sortBy&asc&author&tag&artist` (fragmento HTML, 40 tarjetas, `a[rel=next]`); `cat` = id 1–34, `alpha` = A–Z u `Other`, `sortBy` = `name`|`views`. No hay ordenar por fecha.
+- **Módulo:** `home()` = Populares, Últimas, Más leídos (`views` desc) y Directorio A-Z; `list(sectionId, page)`; `filters()` = Género, Inicial, Orden; `search(query, page, filters)`: sin texto usa el directorio; con texto, el autocompletado (≤20) filtrado por género. Si el directorio da `BLOCKED`, `home()` omite esas secciones en vez de fallar.
+- **Sin verificar:** que `host.fetch` de la app pase Cloudflare en `/filterList` (si no, esas secciones desaparecen y el filtrado sin texto da `BLOCKED`); filtros `tag`, `author`, `artist` (existen en el endpoint, no se expusieron); que la app admita las ops nuevas.
+- **Prueba:** `RYUUNEST_REPO=<clon> node --test m440/bin/m440.test.js` (sin red; fixtures inventadas; usa el parser del repo principal). Selectores del directorio comprobados además contra una página real guardada (40 tarjetas, `hasNext`).
+- **Paquete:** `packages/m440-0.2.0.zip` (SHA-256 `4465347d87fac3f45b1c45565fec6412c720dec0dbe2acd63fd8b0330dd74b3e`, 19 119 bytes). **`index.json` aún no actualizado**: va en PR aparte (sigue apuntando a 0.1.0).
+
+### 2026-11-13 · Reglas anti-inyección, `tools/` y contrato dinámico (docs)
+
+- **Hecho:** `AGENTS.md` §5 (scraping seguro), §6 (escalera API Anything → Scrapling → Maxun) y §7 (contrato `home/list/filters/search(filters)`); `tools/` con README y `sanitize.mjs` (test en verde); `PLAN.md` y `BUGS.md`.
+- **Sin verificar:** los comandos de API Anything y Maxun salen de su documentación; Maxun MCP/REST sin confirmar. La app (SDK/UI) aún no admite las ops nuevas.
+- **Pendiente:** `home/list/filters` en zonatmo y yupmanga (ver `PLAN.md` fase B).
 
 ### 2026-10-26 · Módulo `m440` (listas en el home y capítulos cifrados)
 

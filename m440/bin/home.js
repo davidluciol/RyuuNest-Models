@@ -74,11 +74,7 @@ async function homePage(host) {
   return loadDocument(host, ROUTES.home);
 }
 
-export async function popular(host, page) {
-  if (pageNumber(page) > 1) {
-    return { items: [], hasNext: false };
-  }
-  const { document, url } = await homePage(host);
+function popularFrom({ document, url }) {
   const cards = document.select(SELECTORS.popular.card);
   if (cards.length === 0) {
     throw fail("PARSE", "El home no trae la sección de populares", {
@@ -89,11 +85,7 @@ export async function popular(host, page) {
   return { items: cards.map((card) => popularItem(card, url)), hasNext: false };
 }
 
-export async function latest(host, page) {
-  if (pageNumber(page) > 1) {
-    return { items: [], hasNext: false };
-  }
-  const { document, url } = await homePage(host);
+function latestFrom({ document, url }) {
   const rows = document.select(SELECTORS.latest.item);
   if (rows.length === 0) {
     throw fail("PARSE", "El home no trae la sección de últimas actualizaciones", {
@@ -102,4 +94,20 @@ export async function latest(host, page) {
     });
   }
   return { items: unique(rows.map((row) => latestItem(row, url))), hasNext: false };
+}
+
+const EMPTY = { items: [], hasNext: false };
+
+export async function popular(host, page) {
+  return pageNumber(page) > 1 ? EMPTY : popularFrom(await homePage(host));
+}
+
+export async function latest(host, page) {
+  return pageNumber(page) > 1 ? EMPTY : latestFrom(await homePage(host));
+}
+
+/** Las dos listas del home con una sola petición. */
+export async function homeLists(host) {
+  const page = await homePage(host);
+  return { popular: popularFrom(page), latest: latestFrom(page) };
 }

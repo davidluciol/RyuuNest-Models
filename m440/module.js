@@ -6,6 +6,7 @@
 
 import { popular, latest } from "./bin/home.js";
 import { search } from "./bin/search.js";
+import { home, list, filters } from "./bin/catalog.js";
 import { details } from "./bin/details.js";
 import { pages } from "./bin/pages.js";
 
@@ -14,7 +15,10 @@ export default function create(host) {
   return {
     popular: (page) => popular(host, page),
     latest: (page) => latest(host, page),
-    search: (query, page) => search(host, query, page),
+    search: (query, page, activeFilters) => search(host, query, page, activeFilters),
+    home: () => home(host),
+    list: (sectionId, page) => list(host, sectionId, page),
+    filters: async () => filters(),
     details: (seriesId) => details(host, seriesId),
     pages: (chapterId, releaseId) => pages(host, chapterId, releaseId),
   };
