@@ -1,6 +1,7 @@
 /** Buscador: el autocompletado del sitio devuelve un JSON con hasta 20 series. */
 
-import { ROUTES, SELECTORS } from "./config.js";
+import { catalogPage } from "./catalog.js";
+import { CATEGORIES, ROUTES, SELECTORS } from "./config.js";
 import { fail } from "./utils/errors.js";
 import { requestHeaders, statusError } from "./utils/http.js";
 import { attrOf, collapse, compact, splitList, textOf } from "./utils/text.js";
@@ -29,12 +30,17 @@ function itemOf(host, entry) {
   });
 }
 
-export async function search(host, query, page) {
+/** Con filtros y sin texto se usa el directorio; con texto, el autocompletado (el género filtra su resultado). */
+export async function search(host, query, page, filters) {
   const text = String(query ?? "").trim();
   const current = Number(page);
+  if (text === "" && filters !== undefined && Object.keys(filters).length > 0) {
+    return catalogPage(host, filters, page);
+  }
   if (text.length < 2 || (Number.isInteger(current) && current > 1)) {
     return { items: [], hasNext: false };
   }
+  const genre = CATEGORIES[Number(filters?.cat) - 1];
   const url = ROUTES.search(text);
   const response = await host.fetch(url, { headers: requestHeaders(undefined, "application/json") });
   if (response.status < 200 || response.status > 299) {
@@ -52,8 +58,11 @@ export async function search(host, query, page) {
       selector: "response[]",
     });
   }
-  const items = payload.map((entry) => itemOf(host, entry)).filter((item) => item !== undefined);
-  if (payload.length > 0 && items.length === 0) {
+  const items = payload
+    .map((entry) => itemOf(host, entry))
+    .filter((item) => item !== undefined)
+    .filter((item) => genre === undefined || item.badges?.includes(genre));
+  if (payload.length > 0 && items.length === 0 && genre === undefined) {
     throw fail("PARSE", "El buscador trae resultados pero ninguno se pudo leer", {
       url,
       selector: `${SELECTORS.search.link} / ${SELECTORS.search.title}`,
