@@ -19,7 +19,11 @@
 
 ## yupmanga
 
-- 2026-11-13 · popular/latest/search/details · en la app las portadas no cargan y las tarjetas quedan en blanco (reporte del mantenedor) · causa: sin investigar; hipótesis a verificar: la imagen exige cabeceras (`Referer`, `User-Agent`, cookie de la sesión del reto JS) que la app no envía, o la URL de portada no es la final · **abierto**.
+- 2026-11-13 · pages · el capítulo fallaba con `UNSUPPORTED` («el reto del lector cambió de formato») · causa: el reto pasó a JS polimórfico que lee el DOM/CSS oculto de la ficha · **resuelto** en 0.1.1 (intérprete cerrado `miniJs.js`; probado en vivo con 81 imágenes).
+- 2026-11-13 · pages · con una respuesta errónea al reto el sitio da un token sin `chapter_id` y redirige al home · causa: validación del servidor engañosa · **resuelto** (el módulo da `BLOCKED` si falta `chapter_id`).
+- 2026-11-13 · popular/latest/search/details · en la app las portadas no cargan y las tarjetas quedan en blanco (reporte del mantenedor) · causa: la URL y las cabeceras del módulo son correctas (200 con huella de navegador), pero Cloudflare da 403 al cliente que no la tiene y las portadas están en el mismo dominio protegido · **abierto**: 0.1.1 añade `Accept` y la cookie de sesión; falta confirmarlo en el teléfono y, si sigue en blanco, cargar las portadas con el cliente de `host.fetch` (cambio en la app).
+- 2026-11-13 · pages · el interstitial de anuncio obliga a esperar ~9 s por capítulo y el sitio limita las lecturas por día (`quota_exceeded` → `RATE_LIMITED`) · abierto (decisión del sitio).
+- 2026-11-13 · sitio frágil · el reto cambia de forma sin aviso (ya van dos formatos); si el intérprete no soporta una construcción nueva falla con `UNSUPPORTED: JS no soportado: …` y hay que ampliar `miniJs.js` · abierto (vigilar).
 
 ## m440 (MangasIn)
 

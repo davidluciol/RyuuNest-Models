@@ -44,7 +44,7 @@ function absorbCookies(state, headers) {
   }
 }
 
-function cookieHeader(state) {
+export function cookieHeader(state) {
   return Object.entries(state.cookies)
     .map(([name, value]) => `${name}=${value}`)
     .join("; ");
@@ -129,6 +129,9 @@ export async function getJson(host, state, url, options) {
   try {
     return JSON.parse(text);
   } catch {
+    if (CHALLENGE_TITLE.test(text)) {
+      throw fail("BLOCKED", `El sitio pide superar una protección anti-bot en ${url}`, { url });
+    }
     throw fail("PARSE", `El sitio no devolvió JSON en ${url}`, { url });
   }
 }

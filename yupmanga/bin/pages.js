@@ -8,14 +8,16 @@ import {
   AD_TICKET,
   AD_WAIT_MS,
   BASE_URL,
+  DEFAULT_READER,
   PAGE_KEYS,
+  READER_FILE,
   READER_URL,
   ROUTES,
   SELECTORS,
 } from "./config.js";
 import { fail } from "./utils/errors.js";
 import { formBody, sleep, solveChallenge } from "./utils/challenge.js";
-import { createSession, getJson, loadDocument } from "./utils/http.js";
+import { cookieHeader, createSession, getJson, loadDocument } from "./utils/http.js";
 import { attrOf, textOf } from "./utils/text.js";
 import { absoluteUrl, imageRef, queryOf, requirePath } from "./utils/url.js";
 
@@ -28,16 +30,21 @@ function releaseParams(releaseId) {
   if (!seriesId || !chapterKey) {
     throw fail("NOT_FOUND", `La release no identifica serie y capítulo: ${releaseId}`);
   }
-  return { seriesId, chapterKey };
+  const reader = READER_FILE.test(params.reader ?? "") ? params.reader : DEFAULT_READER;
+  return { seriesId, chapterKey, reader };
 }
 
 function chapterToken(payload, seriesId, chapterKey, url) {
   if (!payload || payload.success !== true || typeof payload.token !== "string") {
     throw fail("BLOCKED", "El sitio no entregó acceso al capítulo", { url });
   }
+  // Con una respuesta errónea al reto el sitio igualmente da un token, pero sin `chapter_id` y inservible.
+  if (!payload.chapter_id) {
+    throw fail("BLOCKED", "El sitio no aceptó la respuesta al reto del lector", { url });
+  }
   return {
     token: payload.token,
-    chapterId: String(payload.chapter_id || chapterKey),
+    chapterId: String(payload.chapter_id),
     seriesId,
   };
 }
@@ -45,7 +52,7 @@ function chapterToken(payload, seriesId, chapterKey, url) {
 async function openChapter(host, session, seriesId, chapterKey, referer) {
   const headers = { ...XHR };
 
-  const { document } = await loadDocument(host, session, referer);
+  const { document, text: seriesHtml } = await loadDocument(host, session, referer);
   const csrf = attrOf(document, SELECTORS.details.csrf, "value");
   if (csrf === "") {
     throw fail("NOT_FOUND", "La ficha no existe o no trae el token CSRF del lector", {
@@ -55,19 +62,13 @@ async function openChapter(host, session, seriesId, chapterKey, referer) {
   }
   headers["X-CSRF-Token"] = csrf;
 
-  const anchor = await getJson(
-    host,
-    session,
-    `${BASE_URL}/ajax/get_anchor.php?s=${encodeURIComponent(seriesId)}`,
-    { headers, referer },
-  );
   const challenge = await getJson(host, session, `${BASE_URL}/ajax/get_challenge.php`, {
     method: "POST",
     headers,
     body: formBody({ chapter_key: chapterKey, s: seriesId }),
     referer,
   });
-  const answer = solveChallenge(challenge.challenge_js, anchor.v);
+  const answer = solveChallenge(challenge.challenge_js, seriesHtml);
 
   const opened = await getJson(host, session, `${BASE_URL}/ajax/open_chapter.php`, {
     method: "POST",
@@ -135,7 +136,7 @@ function pageEntries(html, url) {
 }
 
 export async function pages(host, _chapterId, releaseId) {
-  const { seriesId, chapterKey } = releaseParams(releaseId);
+  const { seriesId, chapterKey, reader: readerFile } = releaseParams(releaseId);
   const session = createSession();
   const seriesUrl = ROUTES.series(seriesId);
   const access = await openChapter(host, session, seriesId, chapterKey, seriesUrl);
@@ -143,7 +144,7 @@ export async function pages(host, _chapterId, releaseId) {
   let reader = await loadDocument(
     host,
     session,
-    ROUTES.reader(access.chapterId, access.token, 1),
+    ROUTES.reader(readerFile, access.chapterId, access.token, 1),
     seriesUrl,
   );
 
@@ -181,7 +182,7 @@ export async function pages(host, _chapterId, releaseId) {
   return {
     ...(title === "" ? {} : { title }),
     images: entries.map(([, key]) =>
-      imageRef(`${BASE_URL}/image-proxy-v2.php?k=${encodeURIComponent(key)}`, reader.url),
+      imageRef(`${BASE_URL}/image-proxy-v2.php?k=${encodeURIComponent(key)}`, reader.url, cookieHeader(session)),
     ),
   };
 }

@@ -5,6 +5,8 @@ export const BASE_URL = "https://www.yupmanga.com";
 export const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36";
 
+export const IMAGE_ACCEPT = "image/avif,image/webp,image/apng,image/*,*/*;q=0.8";
+
 export const ACCEPT_LANGUAGE = "es-MX,es;q=0.9,en;q=0.8";
 
 export const ROUTES = {
@@ -16,8 +18,8 @@ export const ROUTES = {
     `${BASE_URL}/ajax/load_chapters.php?series_id=${encodeURIComponent(seriesId)}&page=${page}&order=asc`,
   similar: (seriesId) =>
     `${BASE_URL}/ajax/load_similar_series.php?series_id=${encodeURIComponent(seriesId)}`,
-  reader: (chapterId, token, page) =>
-    `${BASE_URL}/reader_v2.php?chapter=${encodeURIComponent(chapterId)}&token=${encodeURIComponent(
+  reader: (reader, chapterId, token, page) =>
+    `${BASE_URL}/${reader}?chapter=${encodeURIComponent(chapterId)}&token=${encodeURIComponent(
       token,
     )}&page=${page}`,
 };
@@ -58,6 +60,9 @@ export const CHALLENGE_TITLE = /just a moment|attention required|checking your b
 export const CHAPTERS_COUNT = /^([\d.,]+)\s+cap[ií]tulos?$/iu;
 export const CHALLENGE_PARTS = /\[([0-9,]+)\];var [\w$]+=String\.fromCharCode\(([0-9,]+)\);/u;
 export const AD_TICKET = /const adTicket\s*=\s*(\{[\s\S]*?\});/u;
+/** Lector por defecto y forma válida del que declara cada capítulo (`data-reader`). */
+export const DEFAULT_READER = "reader_v2.php";
+export const READER_FILE = /^[\w-]+\.php$/u;
 export const READER_URL = /data-reader-url="([^"]+)"/u;
 export const PAGE_KEYS = /readerPageKeys\s*=\s*(\{[\s\S]*?\});/u;
 

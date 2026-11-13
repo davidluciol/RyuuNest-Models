@@ -2,13 +2,13 @@
 
 import { ROUTES, SELECTORS } from "./config.js";
 import { fail } from "./utils/errors.js";
-import { createSession, loadDocument } from "./utils/http.js";
+import { cookieHeader, createSession, loadDocument } from "./utils/http.js";
 import { kindOf, statusOf } from "./utils/normalize.js";
 import { attrOf, collapse, compact, textOf } from "./utils/text.js";
 import { imageRef, relativePath } from "./utils/url.js";
 
 /** Tarjeta de serie → item de lista del contrato. */
-export function itemOf(card, url) {
+export function itemOf(card, url, cookie) {
   const id = relativePath(attrOf(card, SELECTORS.card.link, "href"), true);
   const title = textOf(card, SELECTORS.card.title);
   if (id === "" || title === "") {
@@ -41,18 +41,18 @@ export function itemOf(card, url) {
   return compact({
     id,
     title,
-    cover: cover === "" ? undefined : imageRef(cover),
+    cover: cover === "" ? undefined : imageRef(cover, undefined, cookie),
     kind,
     badges: statusText === "" ? [] : [statusText],
   });
 }
 
 /** Primera rejilla con tarjetas (top: «Más leídas»; home: «Últimas series»). */
-function firstGrid(document, url) {
+function firstGrid(document, url, cookie) {
   for (const grid of document.select(SELECTORS.grid)) {
     const cards = grid.select(SELECTORS.card.root);
     if (cards.length > 0) {
-      return cards.map((card) => itemOf(card, url));
+      return cards.map((card) => itemOf(card, url, cookie));
     }
   }
   throw fail("PARSE", "La página no trae ninguna rejilla de series", {
@@ -67,7 +67,7 @@ async function singlePage(host, page, url) {
   }
   const session = createSession();
   const { document } = await loadDocument(host, session, url);
-  return { items: firstGrid(document, url), hasNext: false };
+  return { items: firstGrid(document, url, cookieHeader(session)), hasNext: false };
 }
 
 export function popular(host, page) {
