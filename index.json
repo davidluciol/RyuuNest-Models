@@ -2,7 +2,7 @@
   "format": "ryuunest-repo",
   "version": 1,
   "name": "RyuuNest-Models",
-  "updatedAt": "2026-10-26T02:40:05.817Z",
+  "updatedAt": "2026-11-13T18:16:25.935Z",
   "modules": [
     {
       "id": "zonatmo",
@@ -39,7 +39,7 @@
     {
       "id": "m440",
       "name": "M440",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "apiVersion": 1,
       "runtime": "script",
       "kinds": ["manga", "manhwa"],
@@ -48,9 +48,9 @@
       "permissions": {
         "domains": ["m440.in", "s1.m440.in", "s2.m440.in"]
       },
-      "package": "packages/m440-0.1.0.zip",
-      "sha256": "36bfb1aa6d242940e1f62bbd17f612e72f2c9e597cbf27e2816f6cab255c3e65",
-      "size": 14121
+      "package": "packages/m440-0.2.0.zip",
+      "sha256": "4465347d87fac3f45b1c45565fec6412c720dec0dbe2acd63fd8b0330dd74b3e",
+      "size": 19119
     }
   ]
 }
