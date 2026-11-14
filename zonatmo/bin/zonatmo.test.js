@@ -3,6 +3,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
 import create from "../module.js";
 
 const repo = process.env.RYUUNEST_REPO;
@@ -98,4 +99,25 @@ test("zonatmo: un 404 del sitio principal no salta al espejo", { skip: !repo }, 
   host.fetch = async (url) => (url.includes("/biblioteca") ? { status: 404, url, text: async () => "" } : real(url));
   await assert.rejects(create(host).popular(1), { code: "NOT_FOUND" });
   assert.equal(requests.length, 0);
+});
+
+// Arnés del repo principal (`pnpm --filter @ryuunest/test-site build`). Con el sitio principal caído,
+// details y pages salen del espejo, que trae un capítulo con dos releases.
+test("zonatmo: arnés de contrato con fixtures propias", { skip: !repo }, async () => {
+  const { runContract } = await import(pathToFileURL(`${repo}/packages/test-site/dist/index.js`).href);
+  const manifest = JSON.parse(readFileSync(new URL("../manifest.json", import.meta.url), "utf8"));
+  const report = await runContract(create(makeHost([], { orgDown: true })), {
+    capabilities: manifest.capabilities,
+    seriesId: "/manga/9101/serie-espejo-uno",
+    chapterId: "/manga/9101/serie-espejo-uno/serie-espejo-uno-capitulo-2",
+    releaseIds: [
+      "/manga/9101/serie-espejo-uno/serie-espejo-uno-capitulo-2b",
+      "/manga/9101/serie-espejo-uno/serie-espejo-uno-capitulo-2",
+    ],
+    searchQuery: "espejo",
+    estimatedHasNext: true,
+    expectImageHeaders: { Referer: "https://zonatmo.to/" },
+  });
+  assert.deepEqual(report.methods, ["popular", "latest", "search", "details", "pages"]);
+  assert.deepEqual(report.imageCounts, [2, 2]);
 });
