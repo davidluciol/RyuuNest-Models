@@ -178,6 +178,12 @@ Son herramientas de **análisis local**: el módulo publicado sigue usando solo 
 
 Si ninguno lo consigue, el método informa `BLOCKED` con detalle (§1.6) y se anota en `BUGS.md`.
 
+Reglas aprendidas con `yupmanga` (retos de bloqueo):
+
+- **Un reto JS del sitio se resuelve, no se ejecuta.** Los módulos corren sin aislamiento en la app (D-5): `eval`/`new Function` sobre código del sitio sería ejecución remota. Si el reto es cálculo puro, se reproduce con el intérprete cerrado de `yupmanga/bin/utils/miniJs.js` (copiar al módulo que lo necesite; solo ve los globales que se le pasan y falla con `UNSUPPORTED` ante sintaxis o miembros desconocidos) o con aritmética propia. Si necesita un navegador real, no es apto para un módulo: anotar en `BUGS.md`.
+- **Una respuesta errónea al reto puede devolver «éxito»** (token sin `chapter_id` y que redirige al home). Validar siempre lo que el sitio devuelve (`BLOCKED`, nunca páginas vacías) y tener una prueba que falle con una respuesta mala.
+- **Poca carga al sitio mientras se analiza:** guardar respuestas en `.scrape-tmp/` y trabajar fuera de línea; ver `tools/README.md` §4 para ejercitar el módulo completo con un proxy de huella TLS.
+
 ## 7. Contrato dinámico: home y buscador por sitio
 
 La app no impone una plantilla: cada módulo declara lo que **su sitio** tiene. Son operaciones opcionales y compatibles hacia atrás (`popular`, `latest` y `search(query, page)` siguen valiendo). Se listan en `capabilities` solo si el módulo las implementa.

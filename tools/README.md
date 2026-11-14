@@ -53,3 +53,16 @@ docker-compose up -d     # frontend 5173, backend 8080, postgres 5432, minio 900
 
 - Liga puertos a `127.0.0.1` o filtra con firewall; no expongas el 8080 sin autenticación.
 - Su servidor MCP y su API REST están **sin verificar**: confirma en la documentación antes de depender de ellos.
+
+## 4. Probar un módulo contra el sitio real (proxy de huella TLS)
+
+Node (`fetch`) recibe 403 de Cloudflare aunque lleve las cabeceras correctas; un navegador o `curl_cffi` no. Para ejercitar `module.js` entero contra el sitio sin salir de Node:
+
+```bash
+.scrape-tmp/venv/Scripts/python.exe tools/tls-proxy.py https://www.SITIO.com/    # escucha en 127.0.0.1:8799
+```
+
+Un `host.fetch` de prueba reenvía cada petición a `http://127.0.0.1:8799/` con la URL real en `X-Target-Url` (y `X-Method`); el proxy responde 200 con el estado real en `X-Status`, las cookies en `X-Set-Cookie` y la redirección en `X-Location`. Solo escucha en loopback y solo acepta los orígenes que se le pasan.
+
+- **Pocas peticiones:** Cloudflare puso un reto gestionado en `get_challenge.php` de yupmanga tras ~40 POST seguidos. Nada de bucles de muestreo contra el sitio: guarda lo que traiga y analiza fuera de línea.
+- Probado con `curl_cffi` 0.17 (viene con `scrapling[fetchers]`).

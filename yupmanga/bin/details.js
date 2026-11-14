@@ -2,11 +2,13 @@
 
 import {
   CHAPTERS_COUNT,
+  DEFAULT_READER,
+  READER_FILE,
   ROUTES,
   SELECTORS,
 } from "./config.js";
 import { fail } from "./utils/errors.js";
-import { createSession, getJson, loadDocument } from "./utils/http.js";
+import { cookieHeader, createSession, getJson, loadDocument } from "./utils/http.js";
 import { kindOf, statusOf } from "./utils/normalize.js";
 import { attrOf, collapse, compact, textList, textOf } from "./utils/text.js";
 import { imageRef, queryOf, requirePath } from "./utils/url.js";
@@ -50,13 +52,17 @@ function chapterOf(link, seriesId) {
     return undefined;
   }
   const number = Number(key.replace(",", "."));
+  // El lector lo decide el sitio por capítulo (`data-reader`); solo se guarda si no es el de siempre.
+  const reader = attrOf(link, "", "data-reader");
+  const readerPart =
+    READER_FILE.test(reader) && reader !== DEFAULT_READER ? `&reader=${encodeURIComponent(reader)}` : "";
   return compact({
     id: title,
     title,
     number: Number.isFinite(number) ? number : undefined,
     releases: [
       {
-        id: `/series.php?id=${encodeURIComponent(seriesId)}&chapter=${encodeURIComponent(key)}`,
+        id: `/series.php?id=${encodeURIComponent(seriesId)}&chapter=${encodeURIComponent(key)}${readerPart}`,
       },
     ],
   });
@@ -89,7 +95,7 @@ async function chaptersOf(host, session, seriesId, pageUrl) {
   return chapters;
 }
 
-function relatedOf(payload) {
+function relatedOf(payload, cookie) {
   const list = Array.isArray(payload.series_data) ? payload.series_data : [];
   const related = [];
   for (const item of list) {
@@ -104,7 +110,7 @@ function relatedOf(payload) {
       compact({
         id: `/series.php?id=${encodeURIComponent(id)}`,
         title,
-        cover: cover === "" ? undefined : imageRef(cover),
+        cover: cover === "" ? undefined : imageRef(cover, undefined, cookie),
         kind: kindOf(item?.serieType),
         badges: status === "" ? [] : [status],
       }),
@@ -144,7 +150,7 @@ export async function details(host, seriesPath) {
   return {
     id: seriesPath,
     title,
-    ...(cover === "" ? {} : { cover: imageRef(cover) }),
+    ...(cover === "" ? {} : { cover: imageRef(cover, undefined, cookieHeader(session)) }),
     ...(description === "" ? {} : { description }),
     genres: textList(document, SELECTORS.details.genres),
     status: statusOf(info.statusText),
@@ -156,6 +162,6 @@ export async function details(host, seriesPath) {
       Etiquetas: tags.join(", "),
     }),
     chapters,
-    related: relatedOf(similar),
+    related: relatedOf(similar, cookieHeader(session)),
   };
 }

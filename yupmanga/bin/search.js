@@ -2,7 +2,7 @@
 
 import { ROUTES, SELECTORS } from "./config.js";
 import { itemOf } from "./home.js";
-import { createSession, loadDocument } from "./utils/http.js";
+import { cookieHeader, createSession, loadDocument } from "./utils/http.js";
 
 function hasNextPage(document) {
   return document
@@ -21,6 +21,6 @@ export async function search(host, query, page) {
   const { document } = await loadDocument(host, session, url);
   const items = document
     .select(SELECTORS.card.root)
-    .map((card) => itemOf(card, url));
+    .map((card) => itemOf(card, url, cookieHeader(session)));
   return { items, hasNext: hasNextPage(document) };
 }

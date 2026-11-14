@@ -1,6 +1,6 @@
 /** Rutas e imágenes: los `id` siempre son relativos al sitio. */
 
-import { BASE_URL, USER_AGENT } from "../config.js";
+import { BASE_URL, IMAGE_ACCEPT, USER_AGENT } from "../config.js";
 import { fail } from "./errors.js";
 
 /** Ruta relativa al sitio (los dominios cambian); `""` si no hay ruta. */
@@ -52,12 +52,18 @@ export function queryOf(path) {
   return params;
 }
 
-export function imageRef(url, referer) {
+/**
+ * Imagen con las cabeceras de un navegador y, si hay, la cookie de la sesión que cargó la
+ * lista: el sitio (Cloudflare) rechaza con 403 al cliente que no se parece a un navegador.
+ */
+export function imageRef(url, referer, cookie) {
   return {
     url: absoluteUrl(url),
     headers: {
       Referer: referer === undefined ? `${BASE_URL}/` : referer,
       "User-Agent": USER_AGENT,
+      Accept: IMAGE_ACCEPT,
+      ...(cookie ? { Cookie: cookie } : {}),
     },
   };
 }
