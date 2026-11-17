@@ -3,6 +3,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
 import create from "../module.js";
 
 const repo = process.env.RYUUNEST_REPO;
@@ -26,7 +27,9 @@ function makeHost(requests) {
     fetch: async (url) => {
       requests.push(url);
       const body = url.includes("/filterList") ? fixture("catalog.html")
-        : url.includes("/search?") ? fixture("search.json") : fixture("home.html");
+        : url.includes("/search?") ? fixture("search.json")
+        : /\/manga\/[^/]+\/[^/]+$/u.test(url) ? fixture("chapter.html")
+        : /\/manga\/[^/]+$/u.test(url) ? fixture("series.html") : fixture("home.html");
       return { status: 200, url, text: async () => body };
     },
   };
@@ -56,4 +59,22 @@ test("m440: home, list, filters y search con filtros", { skip: !repo }, async ()
   const byText = await mod.search("serie", 1, { cat: "25" }); // Shounen = 25
   assert.equal(byText.items.length, 1);
   assert.equal((await mod.search("serie", 1, { cat: "1" })).items.length, 0); // Action
+});
+
+// Arnés del repo principal (`pnpm --filter @ryuunest/test-site build`): una release por capítulo.
+test("m440: arnés de contrato con fixtures propias", { skip: !repo }, async () => {
+  const { runContract } = await import(pathToFileURL(`${repo}/packages/test-site/dist/index.js`).href);
+  const manifest = JSON.parse(readFileSync(new URL("../manifest.json", import.meta.url), "utf8"));
+  const report = await runContract(create(makeHost([])), {
+    capabilities: manifest.capabilities,
+    seriesId: "/manga/serie-falsa-uno",
+    chapterId: "/manga/serie-falsa-uno/2-fake2",
+    releaseIds: ["/manga/serie-falsa-uno/2-fake2"],
+    searchQuery: "serie",
+    estimatedHasNext: true,
+    singleReleasePerChapter: true,
+    expectImageHeaders: { Referer: "https://m440.in/" },
+  });
+  assert.deepEqual(report.methods, ["popular", "latest", "search", "details", "pages"]);
+  assert.deepEqual(report.imageCounts, [3]);
 });
