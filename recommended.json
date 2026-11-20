@@ -1,0 +1,8 @@
+[
+  {
+    "name": "RyuuNest-Models",
+    "indexUrl": "https://raw.githubusercontent.com/davidluciol/RyuuNest-Models/main/index.json",
+    "description": "Repositorio oficial de módulos de RyuuNest (ZonaTMO, YupManga y M440).",
+    "nsfw": true
+  }
+]
