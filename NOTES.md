@@ -27,6 +27,14 @@
 - **Paquete:** `packages/yupmanga-0.1.1.zip` (SHA-256 `8312f0ebd1684121b53caa353dbff3cc11f6eccab873dec9069fd367afca6d4b`, 20 184 bytes). **`index.json` aún sin actualizar** (sigue en 0.1.0): va en PR aparte.
 - **Sin verificar:** `host.fetch` real de la app frente a Cloudflare en la ficha/POST (la prueba fue con huella de navegador), cookies de `set-cookie` en RN, y que el límite de 15 s por petición del host alcance (cada petición va por separado; la espera de 8–9 s es un `setTimeout`). Home dinámico (`home/list/filters`) de yupmanga sigue pendiente.
 
+### 2026-11-20 · `m440` 0.2.1: mensaje claro ante TIMEOUT (T42)
+
+- **Motivo:** durante la sesión de pruebas `m440.in` dio `TIMEOUT` (sitio intermitente). El corte lo hace el host de la app con un mensaje genérico; el módulo ahora lo captura (`fetchSite` en `bin/utils/http.js`, usado en `loadDocument` y en el buscador) y lo relanza con el mismo código `TIMEOUT` y un texto que explica que el sitio es intermitente. Sin reintentos automáticos (decisión: no cargar más al sitio).
+- **Prueba:** `RYUUNEST_REPO=<clon> node --test m440/bin/m440.test.js` (3 pasan; la nueva simula el TIMEOUT del host).
+- **Paquete:** `packages/m440-0.2.1.zip` (SHA-256 `58a22d87f825ae1443d43bf5cdaf9245625dbf5116b26dd8b516a686c6bae626`, 22 084 bytes). **`index.json` aún no actualizado**: va en PR aparte.
+- **YupManga (T42):** `0.1.1` ya resuelve el nuevo reto del lector; falta comprobar un capítulo en el teléfono.
+- **F64:** `AGENTS.md` §0 ya no dice que «un campo de más o de menos lo rechaza».
+
 ### 2026-11-13 · `m440` 0.2.0 (alias MangasIn): home y buscador dinámicos
 
 - **Escalera:** nivel 0 (HTTP simple) sirve el home y `/search?q=`, pero `/manga-list` y `/filterList` dan 403 «Just a moment…». `Fetcher` de Scrapling (huella de navegador) también 403; `StealthyFetcher` con `solve_cloudflare=True` sí (200). Scrapling se instaló en un venv local (`.scrape-tmp/venv`, ignorado por git); no se usó API Anything ni Maxun.

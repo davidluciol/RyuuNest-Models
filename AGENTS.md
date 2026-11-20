@@ -16,7 +16,7 @@ Cada módulo de este repo resulta en exactamente esto:
 ```
 
 - **`<site>`**: carpeta con el **nombre del sitio**. Debe coincidir con el `id` del manifest, todo en minúsculas, sin espacios ni signos (solo `[a-z0-9-]`). Un módulo por carpeta: aquí no se agrupan varios sitios.
-- **`manifest.json`**: **el contrato**. La app valida su esquema y sus permisos antes de instalar; un campo de más o de menos lo rechaza. Campos permitidos:
+- **`manifest.json`**: **el contrato**. La app valida su esquema y sus permisos antes de instalar y rechaza el módulo si el manifest no cumple el esquema. Campos permitidos:
 
   | Campo | Sentido |
   |---|---|

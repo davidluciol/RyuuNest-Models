@@ -78,3 +78,19 @@ test("m440: arnés de contrato con fixtures propias", { skip: !repo }, async () 
   assert.deepEqual(report.methods, ["popular", "latest", "search", "details", "pages"]);
   assert.deepEqual(report.imageCounts, [3]);
 });
+
+// T42: el host corta con TIMEOUT genérico; el módulo explica que el sitio es intermitente.
+test("m440: un TIMEOUT del host se explica como sitio intermitente", { skip: !repo }, async () => {
+  const host = makeHost([]);
+  host.fetch = async (url) => {
+    const error = new Error(`Tiempo límite agotado: ${url}`);
+    error.name = "ModuleError";
+    error.code = "TIMEOUT";
+    throw error;
+  };
+  await assert.rejects(create(host).popular(), (error) => {
+    assert.equal(error.code, "TIMEOUT");
+    assert.match(error.message, /intermitente/u);
+    return true;
+  });
+});
