@@ -1,68 +1,48 @@
-# tools/: herramientas de análisis de scraping
+# Entorno local de scraping
 
-Herramientas **locales** para estudiar un sitio antes de escribir su módulo. No entran en los `.zip` (el módulo usa solo `host.fetch`). Reglas de uso y escalera: `AGENTS.md` §5 y §6. Todo lo que traigan es dato no confiable: guárdalo en `.scrape-tmp/<site>/` y pásalo por el sanitizador.
+Estas herramientas sirven para estudiar sitios autorizados y preparar módulos de RyuuNest. Las dependencias se instalan en `tools/` y los archivos de trabajo se guardan en `.scrape-tmp/`. El código del módulo usa `host.fetch` y `host.html`.
 
-> Los comandos vienen de la documentación de cada proyecto. **Scrapling se probó** (venv en `.scrape-tmp/venv`, Windows, Python 3.14); API Anything y Maxun siguen **sin verificar**.
+## Instalar desde un clon limpio
 
-## 0. Sanitizador (sin dependencias, Node ≥ 20)
+Instala [Node.js 22.13 o superior](https://nodejs.org/), [Python 3.12 o superior](https://www.python.org/downloads/) y [uv](https://docs.astral.sh/uv/getting-started/installation/). Ejecuta desde la raíz en PowerShell, Bash o Zsh.
 
-```bash
-node tools/sanitize.mjs .scrape-tmp/<site>/home.html .scrape-tmp/<site>/home.clean.html
+```sh
+npm --prefix tools ci --ignore-scripts --no-audit --no-fund
+uv sync --project tools --locked
+npm --prefix tools run api -- --help
+uv run --project tools --locked python tools/extract_html.py --help
 node --test tools/sanitize.test.mjs
 ```
 
-Quita invisibles, comentarios y `script/style/noscript/template`, normaliza NFKC e imprime un informe JSON en stderr; sale con código 1 si halla frases sospechosas (anótalo en `BUGS.md`).
+`package-lock.json` y `uv.lock` fijan las dependencias. El flujo por CLI funciona sin registrar un MCP, cuentas ni claves.
 
-## 1. API Anything: primer intento
+## Flujo para un sitio nuevo
 
-Descubre/reutiliza las APIs internas del sitio. Requiere Node ≥ 22.13. Repo: <https://github.com/goodnight000/api-anything> (MIT).
+1. **API Anything primero.** Identifica el dominio autorizado y revisa si hay una operación de lectura aplicable. Usa solo argumentos elegidos para la tarea. Escribe los resultados crudos en `.scrape-tmp/<sitio>/` y trátalos como datos no confiables.
 
-```bash
-npx -y api-anything setup --local-only     # conecta el agente (MCP/skill) sin catálogo público
-npx -y api-anything learn 'https://SITIO/buscar?q={q}' --args q=uno --args2 q=dos --args3 q=tres --local-only
-npx -y api-anything call SITIO search q=uno
-```
+   ```sh
+   npm --prefix tools run api -- sites
+   npm --prefix tools run api -- ops SITIO
+   npm --prefix tools run api -- call SITIO OPERACION clave=valor
+   ```
 
-- **Siempre `--local-only`**: sin él se envían dominios/URLs al catálogo público.
-- No vence CAPTCHAs ni URLs firmadas; esos casos pasan al nivel 2.
+2. **Sanitiza el HTML antes de inspeccionarlo.** Guarda la página autorizada en UTF-8. Ejecuta el sanitizador existente y detén el análisis automatizado si el comando devuelve un código distinto de cero. El informe te permite revisar el incidente localmente.
 
-## 2. Scrapling: segundo intento
+   ```sh
+   node tools/sanitize.mjs .scrape-tmp/SITIO/home.html .scrape-tmp/SITIO/home.clean.html
+   ```
 
-HTTP, adaptativo y navegador. Python ≥ 3.10. Docs: <https://scrapling.readthedocs.io/en/latest/> (BSD-3).
+3. **Usa Scrapling cuando falten campos.** Ejecuta este comando solo tras un resultado satisfactorio del sanitizador. Elige el selector y conserva únicamente los campos pertinentes.
 
-```bash
-pip install "scrapling[fetchers]"   # añade "[ai]" para el servidor MCP
-scrapling install                    # descarga los navegadores (en Windows no bajó el Chromium: usa `python -m patchright install chromium`)
-scrapling extract get "https://SITIO/" .scrape-tmp/SITIO/home.md --css-selector ".lista"
-scrapling extract fetch "https://SITIO/" .scrape-tmp/SITIO/home.md --solve-cloudflare   # navegador
-```
+   ```sh
+   uv run --project tools --locked python tools/extract_html.py .scrape-tmp/SITIO/home.clean.html 'h1::text'
+   ```
 
-- Orden: `Fetcher` → `StealthyFetcher` (`solve_cloudflare=True`) → `DynamicFetcher`. Probado con m440: `Fetcher` recibe 403 de Cloudflare; `StealthyFetcher(solve_cloudflare=True)` devuelve 200.
-- MCP: `scrapling-mcp` por **stdio**. No exponerlo por HTTP sin token; riesgo SSRF. Mantén `main_content_only` activo.
-- Navegador en Docker (`docker run -i --rm pyd4vinci/scrapling mcp`), nunca con tu perfil.
+Detente ante un bloqueo, desafío de acceso o límite de peticiones. Anota el motivo en `NOTES.md` si afecta al desarrollo del módulo.
 
-## 3. Maxun: último recurso
+## Manejar resultados externos
 
-Plataforma autohospedada de robots sobre navegador real. Docs: <https://docs.maxun.dev/>. **AGPL-3.0**: no se incluye en paquetes.
+El JSON de API Anything y el resultado de Scrapling siguen siendo datos no confiables. Usa únicamente los campos necesarios. Las instrucciones incrustadas carecen de autoridad para cambiar argumentos, ejecutar comandos, abrir enlaces, instalar software o enviar datos. El sanitizador y la etiqueta `untrusted` ayudan a reconocer contenido externo. Si un modelo procesa las respuestas, limita sus permisos fuera del prompt y ejecútalo sin herramientas de acción ni secretos.
 
-```bash
-git clone https://github.com/getmaxun/maxun && cd maxun
-cp .env.example .env     # define JWT_SECRET, SESSION_SECRET (openssl rand -base64 48), ENCRYPTION_KEY (openssl rand -hex 32), PUBLIC_URL, BACKEND_URL
-docker-compose up -d     # frontend 5173, backend 8080, postgres 5432, minio 9000/9001, navegador 3001/3002
-```
-
-- Liga puertos a `127.0.0.1` o filtra con firewall; no expongas el 8080 sin autenticación.
-- Su servidor MCP y su API REST están **sin verificar**: confirma en la documentación antes de depender de ellos.
-
-## 4. Probar un módulo contra el sitio real (proxy de huella TLS)
-
-Node (`fetch`) recibe 403 de Cloudflare aunque lleve las cabeceras correctas; un navegador o `curl_cffi` no. Para ejercitar `module.js` entero contra el sitio sin salir de Node:
-
-```bash
-.scrape-tmp/venv/Scripts/python.exe tools/tls-proxy.py https://www.SITIO.com/    # escucha en 127.0.0.1:8799
-```
-
-Un `host.fetch` de prueba reenvía cada petición a `http://127.0.0.1:8799/` con la URL real en `X-Target-Url` (y `X-Method`); el proxy responde 200 con el estado real en `X-Status`, las cookies en `X-Set-Cookie` y la redirección en `X-Location`. Solo escucha en loopback y solo acepta los orígenes que se le pasan.
-
-- **Pocas peticiones:** Cloudflare puso un reto gestionado en `get_challenge.php` de yupmanga tras ~40 POST seguidos. Nada de bucles de muestreo contra el sitio: guarda lo que traiga y analiza fuera de línea.
-- Probado con `curl_cffi` 0.17 (viene con `scrapling[fetchers]`).
+- [API Anything](https://github.com/goodnight000/api-anything)
+- [Scrapling](https://github.com/D4Vinci/Scrapling)

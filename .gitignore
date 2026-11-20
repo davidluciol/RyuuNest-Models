@@ -4,3 +4,7 @@
 # Dependencias locales
 node_modules/
 .playwright-mcp/
+
+# Entorno y cachés de Python de las herramientas
+/tools/.venv/
+__pycache__/
