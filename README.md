@@ -29,6 +29,10 @@ index.json       ← el índice que lee la app (ryuunest-repo v1)
 
 Las reglas para contribuir y para agentes están en [`AGENTS.md`](AGENTS.md); el cuaderno de trabajo, en [`NOTES.md`](NOTES.md); las herramientas de análisis, en [`tools/`](tools/README.md); los bugs por sitio, en [`BUGS.md`](BUGS.md).
 
+## Preparar el entorno de scraping
+
+La [guía de instalación y configuración](tools/README.md) explica cómo instalar y probar las herramientas desde un clon limpio, qué usar para cada sitio y cómo tratar contenido no confiable.
+
 ## Cómo publicar un módulo
 
 1. Crea la carpeta `<site>/` con `manifest.json`, `module.js` y tu lógica de apoyo en `bin/` (contrato y campos en [`AGENTS.md`](AGENTS.md) §0).
