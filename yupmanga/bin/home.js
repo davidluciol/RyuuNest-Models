@@ -61,19 +61,27 @@ function firstGrid(document, url, cookie) {
   });
 }
 
-async function singlePage(host, page, url) {
-  if (Number(page) > 1) {
-    return { items: [], hasNext: false };
-  }
-  const session = createSession();
-  const { document } = await loadDocument(host, session, url);
-  return { items: firstGrid(document, url, cookieHeader(session)), hasNext: false };
+function pageNumber(page) {
+  const value = Number(page);
+  return Number.isInteger(value) && value > 0 ? value : 1;
 }
 
-export function popular(host, page) {
-  return singlePage(host, page, ROUTES.popular());
+/** Una página de listado: tarjetas de la primera rejilla y «Siguiente» si existe. */
+export async function listPage(host, url) {
+  const session = createSession();
+  const { document } = await loadDocument(host, session, url);
+  const hasNext = document.select(SELECTORS.pagination).some((link) => /siguiente/iu.test(link.text()));
+  return { items: firstGrid(document, url, cookieHeader(session)), hasNext };
+}
+
+/** `/top` no pagina (ignora `?page=`): solo la primera página trae datos. */
+export async function popular(host, page) {
+  if (pageNumber(page) > 1) {
+    return { items: [], hasNext: false };
+  }
+  return { ...(await listPage(host, ROUTES.popular())), hasNext: false };
 }
 
 export function latest(host, page) {
-  return singlePage(host, page, ROUTES.latest());
+  return listPage(host, ROUTES.latest(pageNumber(page)));
 }

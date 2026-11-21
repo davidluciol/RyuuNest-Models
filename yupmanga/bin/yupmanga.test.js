@@ -6,6 +6,7 @@ import { readFileSync } from "node:fs";
 import create from "../module.js";
 import { solveChallenge } from "./utils/challenge.js";
 import { runScript } from "./utils/miniJs.js";
+import { createBox } from "./utils/boxStyle.js";
 
 const repo = process.env.RYUUNEST_REPO;
 const fixture = (name) => readFileSync(new URL(`./fixtures/${name}`, import.meta.url), "utf8");
@@ -70,6 +71,35 @@ test("el intérprete resuelve el reto y respeta !important, especificidad y decl
   assert.equal(solveChallenge(fixture("challenge.js.txt"), fixture("series.html")), expectedAnswer());
 });
 
+test("el intérprete resuelve el reto con plantillas, const/let, desestructuración, for…of y flechas", () => {
+  let q = (305419896 ^ (305419896 << 8)) >>> 0;
+  q = (q + 15) >>> 0;
+  for (const e of [1200, 3400, 560]) q = (Math.imul(q, 31) + e) >>> 0;
+  const stat = String((q ^ 5) >>> 0);
+  let total = 0;
+  for (const ch of "802") total = (total * 31 + ch.charCodeAt(0)) & 0xffffff;
+  for (let i = 0; i < stat.length; i += 1) total = (total ^ stat.charCodeAt(i)) + i;
+  assert.equal(solveChallenge(fixture("challenge2.js.txt"), fixture("series.html")), String(total));
+});
+
+test("el intérprete aplica la función de Array.from y los generadores, clases y try/finally", () => {
+  assert.equal(runScript("var t=0;Array.from('abc',function(c,i){t+=c.charCodeAt(0)*(i+1);});return t+'';"), String(97 + 98 * 2 + 99 * 3));
+  assert.equal(
+    runScript("function*g(){yield 1;yield 2;}var s=0;for(const v of g())s+=v;class A{constructor(x){this.v=x;}m(){this.v+=s;return this;}}try{s+=1;}finally{}return new A(10).m().v+'';"),
+    "14",
+  );
+});
+
+test("la cascada CSS del nodo oculto resuelve selectores, var(), flex, !important y escapes", () => {
+  const html = String.raw`<style>#zz[hidden]{--v:7}#zz>.a{order:var(--v);flex:3 2}[id="zz"] .\62 c:not(.x){order:9!important;order:/*}*/4}#zz .a:nth-child(1){flex-grow:11}#zz .d{order:var(--nada)}</style>
+<div id="zz" hidden><!--</div>--><i class="a"></i><b class="bc" style="order:1"></b><em class="d"></em><u class="e" style="flex-shrink:5"></u></div>`;
+  const box = createBox(html, "zz");
+  const got = box.children.map((c) => ["order", "flex-grow", "flex-shrink"].map((p) => box.compute(c, p)).join("/"));
+  // a: order var=7, grow 11 (nth-child más específico), shrink 2 · bc: !important 9 gana al en línea · d: var sin valor → inicial · e: en línea
+  assert.deepEqual(got, ["7/11/2", "9/0/1", "0/0/1", "0/0/5"]);
+  assert.equal(createBox(html, "nope"), null);
+});
+
 test("el intérprete no alcanza nada fuera de su sandbox y corta los bucles infinitos", () => {
   assert.throws(() => runScript("return globalThis;"), { code: "UNSUPPORTED" });
   assert.throws(() => runScript('return [].constructor("return 1")();'), { code: "UNSUPPORTED" });
@@ -90,7 +120,22 @@ test("yupmanga: listas con portada con cabeceras y cookie de la sesión", { skip
   );
   assert.equal(items[0].cover.headers.Cookie, "ym_device=abc");
   assert.ok(items[0].cover.headers.Accept.includes("image/webp"));
-  assert.deepEqual(await mod.latest(2), { items: [], hasNext: false });
+  await mod.latest(2);
+  assert.ok(requests.some((r) => r.url === "https://www.yupmanga.com/?page=2"));
+  assert.deepEqual(await mod.popular(2), { items: [], hasNext: false });
+});
+
+test("yupmanga: home, ver más y género con filtro (sin texto) o búsqueda por título", { skip: !repo }, async () => {
+  const requests = [];
+  const mod = create(makeHost(requests));
+  const { sections } = await mod.home();
+  assert.deepEqual(sections.map((section) => section.id), ["popular", "latest"]);
+  assert.equal(sections[1].items.length, 2);
+  assert.deepEqual(await mod.list("nope", 1), { items: [], hasNext: false });
+  assert.equal((await mod.filters())[0].id, "genre");
+  assert.equal((await mod.search("", 2, { genre: "ciencia+ficción" })).items.length, 2);
+  assert.ok(requests.some((r) => r.url === "https://www.yupmanga.com/genero/ciencia+ficci%C3%B3n?page=2"));
+  assert.deepEqual(await mod.search("", 1, { genre: "../admin" }), { items: [], hasNext: false });
 });
 
 test("yupmanga: la ficha guarda el lector propio de cada capítulo", { skip: !repo }, async () => {

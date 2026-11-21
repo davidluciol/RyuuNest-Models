@@ -1,6 +1,6 @@
 /** Peticiones a través de `host`: sesión con cookies propias, documentos y JSON. */
 
-import { ACCEPT_LANGUAGE, CHALLENGE_TITLE, USER_AGENT } from "../config.js";
+import { ACCEPT_LANGUAGE, BASE_URL, CHALLENGE_TITLE, USER_AGENT } from "../config.js";
 import { fail } from "./errors.js";
 import { textOf } from "./text.js";
 import { absoluteUrl } from "./url.js";
@@ -85,6 +85,8 @@ export async function request(host, state, url, options = {}) {
   if (body !== undefined) {
     requestInit.body = body;
     requestInit.headers["Content-Type"] = "application/x-www-form-urlencoded";
+    // Sin `Origin` el sitio trata el POST como bot y da un `chapter_id` señuelo que el lector rechaza.
+    requestInit.headers.Origin = BASE_URL;
   }
   let response = await host.fetch(url, requestInit);
   absorbCookies(state, response.headers);

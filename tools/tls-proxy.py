@@ -5,6 +5,7 @@
 import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from curl_cffi import requests as cr
+from fetch import resolve_opts
 ALLOWED = tuple(sys.argv[1:]) or sys.exit("indica al menos un origen permitido, p. ej. https://www.sitio.com/")
 class H(BaseHTTPRequestHandler):
     def _go(self):
@@ -13,7 +14,7 @@ class H(BaseHTTPRequestHandler):
         n = int(self.headers.get("Content-Length") or 0)
         body = self.rfile.read(n) if n else None
         hdr = {k: v for k, v in self.headers.items() if k.lower() not in ("host","x-target-url","content-length","connection","accept-encoding","x-method")}
-        r = cr.request(self.headers.get("X-Method","GET"), url, headers=hdr, data=body, impersonate="chrome", allow_redirects=False, timeout=60)
+        r = cr.request(self.headers.get("X-Method","GET"), url, headers=hdr, data=body, impersonate="chrome", allow_redirects=False, timeout=60, curl_options=resolve_opts(url))
         self.send_response(200)
         self.send_header("X-Status", str(r.status_code))
         self.send_header("X-Set-Cookie", ", ".join(r.headers.get_list("set-cookie")))

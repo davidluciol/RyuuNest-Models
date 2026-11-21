@@ -10,10 +10,12 @@ export const IMAGE_ACCEPT = "image/avif,image/webp,image/apng,image/*,*/*;q=0.8"
 export const ACCEPT_LANGUAGE = "es-MX,es;q=0.9,en;q=0.8";
 
 export const ROUTES = {
-  popular: () => `${BASE_URL}/top.php`,
-  latest: () => `${BASE_URL}/`,
+  popular: () => `${BASE_URL}/top`,
+  latest: (page) => `${BASE_URL}/?page=${page}`,
+  genre: (slug, page) => `${BASE_URL}/genero/${encodeURI(slug)}?page=${page}`,
   search: (query, page) =>
-    `${BASE_URL}/search.php?q=${encodeURIComponent(query)}&page=${page}`,  series: (seriesId) => `${BASE_URL}/series.php?id=${encodeURIComponent(seriesId)}`,
+    `${BASE_URL}/search.php?q=${encodeURIComponent(query)}&page=${page}`,
+  series: (seriesId) => `${BASE_URL}/series.php?id=${encodeURIComponent(seriesId)}`,
   chapters: (seriesId, page) =>
     `${BASE_URL}/ajax/load_chapters.php?series_id=${encodeURIComponent(seriesId)}&page=${page}&order=asc`,
   similar: (seriesId) =>
@@ -33,7 +35,7 @@ export const SELECTORS = {
     image: "img",
     badge: "span",
   },
-  pagination: "a.ym-pag",
+  pagination: "a",
   details: {
     title: "h1",
     cover: 'meta[property="og:image"]',

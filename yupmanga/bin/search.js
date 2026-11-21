@@ -1,20 +1,20 @@
 /** Buscador por título (`/search.php?q=…&page=N`). */
 
 import { ROUTES, SELECTORS } from "./config.js";
+import { genrePage } from "./catalog.js";
 import { itemOf } from "./home.js";
 import { cookieHeader, createSession, loadDocument } from "./utils/http.js";
 
 function hasNextPage(document) {
-  return document
-    .select(SELECTORS.pagination)
-    .some((link) => /siguiente/i.test(link.text()));
+  return document.select(SELECTORS.pagination).some((link) => /siguiente/iu.test(link.text()));
 }
 
-export async function search(host, query, page) {
+/** Con texto busca por título; sin texto y con `filters.genre` lista el género (el sitio no combina ambos). */
+export async function search(host, query, page, filters) {
   const text = String(query ?? "").trim();
   const current = Number.isInteger(Number(page)) && Number(page) > 0 ? Number(page) : 1;
   if (text === "") {
-    return { items: [], hasNext: false };
+    return (await genrePage(host, filters?.genre, current)) ?? { items: [], hasNext: false };
   }
   const url = ROUTES.search(text, current);
   const session = createSession();
