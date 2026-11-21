@@ -173,7 +173,8 @@ Instala y verifica las herramientas desde un clon limpio con [la guía de tools/
 
 1. **API Anything** primero, para operaciones de lectura revisadas en sitios autorizados.
 2. **Scrapling** si la operación no existe o le faltan campos y se dispone de HTML local autorizado. Pasa el archivo por el sanitizador antes de extraer los campos.
-3. **Detén el flujo** ante controles de acceso o límites de peticiones. Documenta las limitaciones en NOTES.md.
+3. **Pruebas en vivo y retos:** `tools/fetch.py`, `tools/tls-proxy.py` y `tools/live.mjs` (huella de navegador, DNS fijado); para YupManga, `tools/canary_yupmanga.py`. Nunca se ejecuta el JS de un sitio de forma nativa (§5.4): los retos se resuelven con intérpretes cerrados dentro del módulo y se validan contra el servidor.
+4. **Detén el flujo** ante controles de acceso o límites de peticiones. Documenta las limitaciones en NOTES.md.
 
 ## 7. Contrato dinámico: home y buscador por sitio
 
