@@ -35,7 +35,7 @@ const host = {
     if (process.env.TRACE) console.error(init.method ?? "GET", url.slice(0, 110), r.headers.get("x-status"), body.length, body.length < 200 ? body.toString("utf8") : "", "loc=" + r.headers.get("x-location"), "cookie=" + (init.headers?.Cookie ?? "").replace(/=[^;]{6,}/g, "=…"), new Date().toISOString().slice(17, 23));
     if (process.env.DUMP) { mkdirSync(process.env.DUMP, { recursive: true }); writeFileSync(`${process.env.DUMP}/${Date.now()}-${(init.method ?? "GET")}-${new URL(url).pathname.replace(/\W+/g, "_")}.raw`, body); }
     const headers = { "content-type": r.headers.get("x-ctype") ?? "", "set-cookie": r.headers.get("x-set-cookie") ?? "", location: r.headers.get("x-location") ?? "" };
-    return { status: Number(r.headers.get("x-status")), headers, url, text: async () => body.toString("utf8"), arrayBuffer: async () => body };
+    return { status: Number(r.headers.get("x-status")), headers, url, text: async () => body.toString("utf8"), arrayBuffer: async () => body, bytes: async () => new Uint8Array(body) };
   },
 };
 
