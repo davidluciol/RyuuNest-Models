@@ -28,9 +28,21 @@ export function statusError(url, status) {
   return fail(code, `El sitio respondió ${status} a ${url}`, { url, status });
 }
 
+/** `host.fetch` con el TIMEOUT genérico del host explicado: m440.in es intermitente. */
+export async function fetchSite(host, url, headers) {
+  try {
+    return await host.fetch(url, { headers });
+  } catch (error) {
+    if (error?.code === "TIMEOUT") {
+      throw fail("TIMEOUT", `m440.in tardó demasiado en responder (el sitio es intermitente); inténtalo de nuevo en un momento: ${url}`, { url });
+    }
+    throw error;
+  }
+}
+
 /** Trae una página y la devuelve como documento y como texto crudo. */
 export async function loadDocument(host, url, referer) {
-  const response = await host.fetch(url, { headers: requestHeaders(referer) });
+  const response = await fetchSite(host, url, requestHeaders(referer));
   if (response.status < 200 || response.status > 299) {
     throw statusError(url, response.status);
   }

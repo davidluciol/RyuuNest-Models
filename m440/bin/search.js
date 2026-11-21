@@ -3,7 +3,7 @@
 import { catalogPage } from "./catalog.js";
 import { CATEGORIES, ROUTES, SELECTORS } from "./config.js";
 import { fail } from "./utils/errors.js";
-import { requestHeaders, statusError } from "./utils/http.js";
+import { fetchSite, requestHeaders, statusError } from "./utils/http.js";
 import { attrOf, collapse, compact, splitList, textOf } from "./utils/text.js";
 import { imageRef, relativePath } from "./utils/url.js";
 
@@ -42,7 +42,7 @@ export async function search(host, query, page, filters) {
   }
   const genre = CATEGORIES[Number(filters?.cat) - 1];
   const url = ROUTES.search(text);
-  const response = await host.fetch(url, { headers: requestHeaders(undefined, "application/json") });
+  const response = await fetchSite(host, url, requestHeaders(undefined, "application/json"));
   if (response.status < 200 || response.status > 299) {
     throw statusError(url, response.status);
   }
