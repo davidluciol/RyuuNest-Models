@@ -24,6 +24,8 @@
 - 2026-11-13 · popular/latest/search/details · en la app las portadas no cargan y las tarjetas quedan en blanco (reporte del mantenedor) · causa: la URL y las cabeceras del módulo son correctas (200 con huella de navegador), pero Cloudflare da 403 al cliente que no la tiene y las portadas están en el mismo dominio protegido · **abierto**: 0.1.1 añade `Accept` y la cookie de sesión; falta confirmarlo en el teléfono y, si sigue en blanco, cargar las portadas con el cliente de `host.fetch` (cambio en la app).
 - 2026-11-13 · pages · el interstitial de anuncio obliga a esperar ~9 s por capítulo y el sitio limita las lecturas por día (`quota_exceeded` → `RATE_LIMITED`) · abierto (decisión del sitio).
 - 2026-11-13 · sitio frágil · el reto cambia de forma sin aviso (ya van dos formatos); si el intérprete no soporta una construcción nueva falla con `UNSUPPORTED: JS no soportado: …` y hay que ampliar `miniJs.js` · abierto (vigilar).
+- 2026-11-20 · pages · en el S25 (Expo Go, YupManga 0.1.1) abrir un capítulo da `UNSUPPORTED`: «El reto del lector usa JS no soportado: carácter «`»» · causa: el reto vigente usa plantillas con acento grave (template literals) y `miniJs.js` no las tokeniza (tercer formato del reto) · **abierto**: falta capturar la fixture del reto actual y ampliar el intérprete (0.1.2).
+- 2026-11-20 · popular/latest/home · en Aventuras, YupManga abre con «Ningún resultado» sin buscar: solo la búsqueda y la ficha traen datos (la búsqueda de «mama» devolvió series y la ficha mostró 10 capítulos) · causa: sin investigar; el home dinámico de yupmanga sigue pendiente (ver NOTES) · **abierto**.
 
 ## m440 (MangasIn)
 
