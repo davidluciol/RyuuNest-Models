@@ -2,7 +2,7 @@
   "format": "ryuunest-repo",
   "version": 1,
   "name": "RyuuNest-Models",
-  "updatedAt": "2026-11-20T21:00:00.000Z",
+  "updatedAt": "2026-11-20T22:30:00.000Z",
   "modules": [
     {
       "id": "zonatmo",
@@ -51,6 +51,22 @@
       "package": "packages/m440-0.2.1.zip",
       "sha256": "58a22d87f825ae1443d43bf5cdaf9245625dbf5116b26dd8b516a686c6bae626",
       "size": 22084
+    },
+    {
+      "id": "hitomi",
+      "name": "Hitomi.la",
+      "version": "0.1.0",
+      "apiVersion": 1,
+      "runtime": "script",
+      "kinds": ["manga"],
+      "lang": "es",
+      "nsfw": true,
+      "permissions": {
+        "domains": ["hitomi.la", "gold-usergeneratedcontent.net"]
+      },
+      "package": "packages/hitomi-0.1.0.zip",
+      "sha256": "6e1e7d56a0ec392e8214317072021354105f53036708cddc02aa9850d695244d",
+      "size": 10661
     }
   ]
 }
