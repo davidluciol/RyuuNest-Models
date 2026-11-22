@@ -46,6 +46,6 @@
 ## e-hentai
 
 - 2026-11-22 · latest/search · la página N cuesta N peticiones (paginación por cursor `?next=`, sin estado en el módulo) · causa: el sitio quitó `?page=` · abierto (aceptado por el mantenedor; arreglo real = cursor opaco en el contrato de la app).
-- 2026-11-22 · todas · veto temporal de IP («temporarily banned») por exceso de cargas; se tipa `RATE_LIMITED` · causa: límite del sitio · abierto (umbral sin medir).
+- 2026-11-22 · todas · veto temporal de IP («temporarily banned») por exceso de cargas; se tipa `RATE_LIMITED` · causa: límite del sitio · abierto (no se alcanzó en la prueba del 2026-11-22: 544 peticiones en ~10 min, de ellas 144 seguidas al dominio principal a ~3,7/s; ver NOTES).
 - 2026-11-22 · pages · al agotar la cuota de imágenes el sitio sirve `509.gif`; se tipa `RATE_LIMITED` · causa: límite del sitio · abierto.
 - 2026-11-22 · pages · las URL H@H (`*.hath.network`, a veces con puerto) caducan (`keystamp`) · causa: diseño del sitio · abierto (la app no debe cachear las URL mucho tiempo; sin verificar puertos en el visor).
