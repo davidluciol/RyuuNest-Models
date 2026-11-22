@@ -1,0 +1,16 @@
+{
+  "id": "e-hentai",
+  "name": "E-Hentai",
+  "version": "0.1.0",
+  "apiVersion": 1,
+  "runtime": "script",
+  "kinds": ["manga"],
+  "lang": "es",
+  "nsfw": true,
+  "baseUrl": "https://e-hentai.org",
+  "capabilities": ["popular", "latest", "search", "details", "pages", "home", "list", "filters"],
+  "permissions": {
+    "domains": ["e-hentai.org", "ehgt.org", "hath.network"]
+  },
+  "entry": "module.js"
+}
