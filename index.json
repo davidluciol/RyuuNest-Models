@@ -2,7 +2,7 @@
   "format": "ryuunest-repo",
   "version": 1,
   "name": "RyuuNest-Models",
-  "updatedAt": "2026-11-20T22:30:00.000Z",
+  "updatedAt": "2026-11-22T12:00:00.000Z",
   "modules": [
     {
       "id": "zonatmo",
@@ -67,6 +67,22 @@
       "package": "packages/hitomi-0.1.0.zip",
       "sha256": "6e1e7d56a0ec392e8214317072021354105f53036708cddc02aa9850d695244d",
       "size": 10661
+    },
+    {
+      "id": "luscious",
+      "name": "Luscious",
+      "version": "0.1.0",
+      "apiVersion": 1,
+      "runtime": "script",
+      "kinds": ["manga", "comic"],
+      "lang": "es",
+      "nsfw": true,
+      "permissions": {
+        "domains": ["luscious.net"]
+      },
+      "package": "packages/luscious-0.1.0.zip",
+      "sha256": "dc0b72dbe8354145e16e97cf473dc87fd5b2ccfa4b5efdfe78631633e3cd16eb",
+      "size": 11757
     }
   ]
 }
