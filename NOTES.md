@@ -27,6 +27,13 @@
 - **Paquete:** `packages/yupmanga-0.1.1.zip` (SHA-256 `8312f0ebd1684121b53caa353dbff3cc11f6eccab873dec9069fd367afca6d4b`, 20 184 bytes). **`index.json` aún sin actualizar** (sigue en 0.1.0): va en PR aparte.
 - **Sin verificar:** `host.fetch` real de la app frente a Cloudflare en la ficha/POST (la prueba fue con huella de navegador), cookies de `set-cookie` en RN, y que el límite de 15 s por petición del host alcance (cada petición va por separado; la espera de 8–9 s es un `setTimeout`). Home dinámico (`home/list/filters`) de yupmanga sigue pendiente.
 
+### 2026-11-22 · `m440` 0.2.2: pausa de 600 ms entre peticiones (G6 de la app)
+
+- **Motivo:** en el POCO, `m440.in` respondió `403` cada vez que dos peticiones salían separadas ~250 ms (pausa por defecto del host), los días 2026-11-21 y 2026-11-22. El manifest declara `"network": { "minDelayMs": 600 }`, campo opcional nuevo del contrato (RyuuNest G6, ADR-0003). Una app sin G6 lo ignora y sigue con 250 ms.
+- **TIMEOUT al retomar:** no era el sitio. Era una conexión que la app reutilizaba tras unos minutos sin tráfico (OkHttp sin límite de tiempo); se arregla en la app (plugin `withOkHttpPing`). El mensaje «el sitio es intermitente» se mantiene.
+- **Prueba:** `RYUUNEST_REPO=<clon> node --test m440/bin/m440.test.js` (5 pasan; nuevas: el manifest declara 600 ms y el validador de la app lo acepta, y un `403` es `BLOCKED`).
+- **Paquete:** `packages/m440-0.2.2.zip` con `ryuunest-module pack` (SHA-256 `8c4077f0f33f1066ed05960c930e034bb0683b45e3339692f36f4fffc2d38ac4`, 22 339 bytes). `index.json` va en PR aparte.
+
 ### 2026-11-20 · `m440` 0.2.1: mensaje claro ante TIMEOUT (T42)
 
 - **Motivo:** durante la sesión de pruebas `m440.in` dio `TIMEOUT` (sitio intermitente). El corte lo hace el host de la app con un mensaje genérico; el módulo ahora lo captura (`fetchSite` en `bin/utils/http.js`, usado en `loadDocument` y en el buscador) y lo relanza con el mismo código `TIMEOUT` y un texto que explica que el sitio es intermitente. Sin reintentos automáticos (decisión: no cargar más al sitio).

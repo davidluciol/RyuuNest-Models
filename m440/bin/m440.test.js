@@ -94,3 +94,20 @@ test("m440: un TIMEOUT del host se explica como sitio intermitente", { skip: !re
     return true;
   });
 });
+
+// G6: m440 responde 403 a peticiones separadas ~250 ms (POCO, 2026-11-21/22); pide 600 ms.
+test("m440: el manifest declara una pausa de 600 ms que la app acepta", { skip: !repo }, async () => {
+  const { validateManifest } = await import(pathToFileURL(`${repo}/packages/module-sdk/dist/index.js`).href);
+  const manifest = JSON.parse(readFileSync(new URL("../manifest.json", import.meta.url), "utf8"));
+  assert.equal(manifest.network?.minDelayMs, 600);
+  assert.deepEqual(validateManifest(manifest).ok, true);
+});
+
+test("m440: un 403 del sitio es BLOCKED", { skip: !repo }, async () => {
+  const host = makeHost([]);
+  host.fetch = async (url) => ({ status: 403, url, text: async () => "" });
+  await assert.rejects(create(host).popular(), (error) => {
+    assert.equal(error.code, "BLOCKED");
+    return true;
+  });
+});
