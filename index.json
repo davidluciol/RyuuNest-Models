@@ -39,7 +39,7 @@
     {
       "id": "m440",
       "name": "M440",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "apiVersion": 1,
       "runtime": "script",
       "kinds": ["manga", "manhwa"],
@@ -48,9 +48,9 @@
       "permissions": {
         "domains": ["m440.in", "s1.m440.in", "s2.m440.in"]
       },
-      "package": "packages/m440-0.2.1.zip",
-      "sha256": "58a22d87f825ae1443d43bf5cdaf9245625dbf5116b26dd8b516a686c6bae626",
-      "size": 22084
+      "package": "packages/m440-0.2.2.zip",
+      "sha256": "8c4077f0f33f1066ed05960c930e034bb0683b45e3339692f36f4fffc2d38ac4",
+      "size": 22339
     },
     {
       "id": "hitomi",
