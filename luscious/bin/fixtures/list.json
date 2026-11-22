@@ -1,0 +1,4 @@
+{"data":{"album":{"list":{"info":{"page":1,"has_next_page":true},"items":[
+{"id":"900001","title":"Serie Inventada Uno","url":"/albums/serie-inventada-uno_900001/","created":1763000000.5,"number_of_pictures":12,"is_manga":true,"cover":{"url":"https://ah-img.luscious.net/demo/900001/cover.315x0.jpg"},"language":{"title":"Spanish / Español"},"genres":[{"id":"2","title":"Fetish"}],"tags":[{"text":"Artist: autora_demo","category":"Artist"},{"text":"etiqueta demo","category":null}]},
+{"id":"900002","title":"","url":"/albums/x_900002/","created":1763000100,"number_of_pictures":3,"is_manga":false,"cover":null,"language":{"title":"English"},"genres":[],"tags":[]}
+]}}}}

@@ -78,6 +78,7 @@ Pide `--n` retos reales, los resuelve con `tools/solve-yupmanga.mjs` (el mismo i
 
 Probado el 2026-11-20 (`API_ANYTHING_LOCAL_ONLY=1`, `API_ANYTHING_HOME` dentro de `.scrape-tmp/`, sin `setup`): su navegador sin interfaz carga la ficha, pero Cloudflare le da 403 en `/genero/…` (mientras `fetch.py` recibe 200 desde la misma IP) y `add` se niega a guardar la operación. Además bloquea los POST durante los pasos (el flujo del capítulo tiene tres) y lo aprendido del lector sería de nivel navegador, inutilizable dentro de un módulo (solo `host.fetch`). Úsalo para operaciones de lectura simples con GET; para el reto, el canario.
 
+**Luscious (2026-11-22):** su navegador sí pasa Cloudflare, pero `learn` sobre `/albums/list/` no encuentra una petición de datos (la lista viene pintada en el HTML) y solo propone anuncios de terceros. Para sitios con API propia (GraphQL por GET) sale más directo `fetch.py` contra la API.
 
 ## Manejar resultados externos
 

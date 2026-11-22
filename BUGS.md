@@ -37,3 +37,8 @@
 - 2026-11-13 · latest · `/releases` ignora `?page=`; el home no pagina · causa: el sitio no ofrece más páginas de actualizaciones · abierto (sin solución en el módulo).
 - 2026-11-13 · filters · el filtro `tag`/`author`/`artist` existe en `/filterList` pero no se expone (semántica sin verificar) · abierto.
 - 2026-11-13 · search · el autocompletado devuelve ≤20 y no pagina; con texto + género solo filtra esos 20 · abierto.
+
+## luscious
+
+- 2026-11-22 · todas · `host.fetch` sin huella de navegador recibe 403 «Just a moment» de Cloudflare en la API (`www.luscious.net/graphql/nobatch/`) · causa: WAF por huella TLS · abierto (sin verificar en el teléfono; se tipa `BLOCKED`).
+- 2026-11-22 · pages/portadas · parte de las imágenes son AVIF (`cdn3.luscious.net`) · causa: el sitio las sirve así · abierto (sin verificar que la app las decodifique).
