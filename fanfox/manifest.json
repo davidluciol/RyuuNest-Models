@@ -1,0 +1,16 @@
+{
+  "id": "fanfox",
+  "name": "FanFox",
+  "version": "0.1.0",
+  "apiVersion": 1,
+  "runtime": "script",
+  "kinds": ["manga", "manhwa", "manhua"],
+  "lang": "en",
+  "nsfw": false,
+  "baseUrl": "https://fanfox.net",
+  "capabilities": ["popular", "latest", "search", "details", "pages", "home", "list", "filters"],
+  "permissions": {
+    "domains": ["fanfox.net", "mangafox.me", "mfcdn.net"]
+  },
+  "entry": "module.js"
+}

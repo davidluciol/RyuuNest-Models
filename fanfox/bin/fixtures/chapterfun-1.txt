@@ -1,0 +1,1 @@
+eval(function(p,a,c,k,e,d){e=function(c){return c};return p}('0 1="2";0 3=["4","5"];',10,6,'var|pix|//zjcdn.mangafox.me/store/manga/900001/1.0/compressed|pvalue|/d001.jpg?token=a&ttl=1|/d002.jpg?token=b&ttl=1'.split('|'),0,{}))

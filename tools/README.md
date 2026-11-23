@@ -84,6 +84,8 @@ Probado el 2026-11-20 (`API_ANYTHING_LOCAL_ONLY=1`, `API_ANYTHING_HOME` dentro d
 
 Probado el 2026-11-22 (local-only): `learn 'https://e-hentai.org/?f_search={q}' --args q=… --args2 q=… --args3 q=…` guardó la op `search` con receta HTML (`table.itg > tr`) y pasó holdout y replay sin cookies. Sitio sin Cloudflare: sirve de contraste rápido de selectores. El lector (`/s/` + API `showpage`) se estudió con `fetch.py`.
 
+**FanFox (2026-11-22, local-only):** el primer `learn 'https://fanfox.net/search?title={q}'` falló con «no request … carries the example values» porque la lista viene en el HTML. Lo resolvió relanzarlo sobre las mismas capturas, sin navegador: `--from <id1> --from2 <id2> --pick-request 1 --html '{"items":"ul.manga-list-4-list > li","fields":{…}}'` (holdout y replay ok). En Windows exporta `PYTHONUTF8=1` antes de lanzarlo.
+
 **VisorManga (2026-11-22):** no está en API Anything y no hizo falta `learn` ni Scrapling: HTML estático sin reto (Node llega con 200). Bastaron `fetch.py`, el sanitizador y `live.mjs`.
 
 ## Manejar resultados externos
