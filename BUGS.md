@@ -60,3 +60,15 @@
 - 2026-11-22 · todas · veto temporal de IP («temporarily banned») por exceso de cargas; se tipa `RATE_LIMITED` · causa: límite del sitio · abierto (no se alcanzó en la prueba del 2026-11-22: 544 peticiones en ~10 min, de ellas 144 seguidas al dominio principal a ~3,7/s; ver NOTES).
 - 2026-11-22 · pages · al agotar la cuota de imágenes el sitio sirve `509.gif`; se tipa `RATE_LIMITED` · causa: límite del sitio · abierto.
 - 2026-11-22 · pages · las URL H@H (`*.hath.network`, a veces con puerto) caducan (`keystamp`) · causa: diseño del sitio · abierto (la app no debe cachear las URL mucho tiempo; sin verificar puertos en el visor).
+
+## mangation
+
+- 2026-11-22 · search · la API de búsqueda (`/public/mangas?q=`) devuelve 5 resultados como máximo y no pagina · causa: límite del sitio · mitigado (búsqueda híbrida: con 5 resultados se recorre la library, ≤10 páginas de 24; si el catálogo pasa de 240 obras, subir `MAX_LIBRARY_PAGES`).
+- 2026-11-22 · details/pages/popular/géneros · se leen de `__data.json`, la ruta interna de SvelteKit (formato devalue), no de la API pública · causa: el sitio no expone ficha ni lector en la API · abierto (un despliegue puede cambiar la forma; las pruebas con fixtures no lo detectan).
+- 2026-11-22 · latest · «Nuevos» ordena por alta de la serie, no por capítulo actualizado · causa: la API solo admite `sort=newest|oldest` · abierto.
+- 2026-11-22 · search · el filtro de género no se combina con tipo/demografía/estado/orden (`/genre/<slug>` no los acepta) · causa: límite del sitio · abierto (+18 sí se aplica en local).
+
+### Posibles bugs (mangation)
+
+- 2026-11-22 · listas · las novelas (`type: novela`) se excluyen sin verificar: hoy no hay ninguna en el catálogo · posible bug (si aparecen con imágenes, quitar el filtro `isComic`).
+- 2026-11-22 · todas · tras ~45 peticiones seguidas el DNS local dejó de resolver el dominio y la conexión por IP falló durante un rato · causa: sin determinar (red local o corte del sitio) · posible bug.
