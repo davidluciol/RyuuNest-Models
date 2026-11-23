@@ -2,7 +2,7 @@
   "format": "ryuunest-repo",
   "version": 1,
   "name": "RyuuNest-Models",
-  "updatedAt": "2026-11-22T12:00:00.000Z",
+  "updatedAt": "2026-11-22T20:00:00.000Z",
   "modules": [
     {
       "id": "zonatmo",
@@ -83,6 +83,22 @@
       "package": "packages/luscious-0.1.0.zip",
       "sha256": "dc0b72dbe8354145e16e97cf473dc87fd5b2ccfa4b5efdfe78631633e3cd16eb",
       "size": 11757
+    },
+    {
+      "id": "e-hentai",
+      "name": "E-Hentai",
+      "version": "0.1.0",
+      "apiVersion": 1,
+      "runtime": "script",
+      "kinds": ["manga"],
+      "lang": "es",
+      "nsfw": true,
+      "permissions": {
+        "domains": ["e-hentai.org", "ehgt.org", "hath.network"]
+      },
+      "package": "packages/e-hentai-0.1.0.zip",
+      "sha256": "92269f3d0de4593b3043108a2efe8acadbfae8ae9a10a964c374a68ab9f2f901",
+      "size": 14260
     }
   ]
 }
