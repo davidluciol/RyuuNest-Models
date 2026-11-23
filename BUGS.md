@@ -43,6 +43,17 @@
 - 2026-11-22 · todas · `host.fetch` sin huella de navegador recibe 403 «Just a moment» de Cloudflare en la API (`www.luscious.net/graphql/nobatch/`) · causa: WAF por huella TLS · abierto (sin verificar en el teléfono; se tipa `BLOCKED`).
 - 2026-11-22 · pages/portadas · parte de las imágenes son AVIF (`cdn3.luscious.net`) · causa: el sitio las sirve así · abierto (sin verificar que la app las decodifique).
 
+## fanfox
+
+- 2026-11-22 · pages/portadas · las URL llevan `token` y `ttl` (caducan en ~1 día) y dan 403 sin `Referer: https://fanfox.net/` · causa: diseño del sitio · abierto (la app no debe cachear las URL mucho tiempo y debe enviar los `headers` de `ImageRef`).
+- 2026-11-22 · details · una serie inexistente redirige a `/search`; el módulo da `NOT_FOUND` por la URL final o por `Location`. Si la app no rellena `HttpResponse.url` (P-74) y sigue la redirección, sale `PARSE` en vez de `NOT_FOUND` · abierto (del lado de la app).
+- 2026-11-22 · search · el filtro de género admite uno solo: con varios (`genres=1,12`), el servidor ignora alguno · causa: límite del sitio · abierto (el filtro es `select`).
+
+### Posibles bugs (fanfox)
+
+- 2026-11-22 · pages (respaldo) · **aviso:** si un capítulo se leyó por la vía de escritorio (`chapterfun.ashx`), puede faltar su última imagen. Ese lector cuenta en `imagecount` un anuncio final y lo sirve con nombres que parecen páginas (`cp_e18.jpg`, `d01f.jpg`, `d025.jpg`), así que el respaldo descarta siempre la última. Si un capítulo no trae anuncio, se pierde una página real · causa: anuncio del sitio · posible bug (comprobado en 3 capítulos). La vía principal (vista móvil) no trae el anuncio ni pierde páginas; el respaldo solo entra si la móvil llega vacía. El lector lo avisa: en ese caso `pages` devuelve `title` = «Aviso: se quitó un anuncio al final; puede faltar la última página».
+- 2026-11-22 · manifest · `nsfw: false` aunque hay series para adultos (la cookie `isAdult=1` las muestra). Contradice la «declaración honesta» de `AGENTS.md` §0, pero se mantiene por decisión del mantenedor: hay más series SFW, la ficha marca `nsfw: true` si tiene Adult, Smut o Mature, y la app ya avisa por cómic NSFW (segundo aviso). Las listas no lo indican · posible bug (decisión aceptada).
+
 ## e-hentai
 
 - 2026-11-22 · latest/search · la página N cuesta N peticiones (paginación por cursor `?next=`, sin estado en el módulo) · causa: el sitio quitó `?page=` · abierto (aceptado por el mantenedor; arreglo real = cursor opaco en el contrato de la app).

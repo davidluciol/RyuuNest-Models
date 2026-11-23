@@ -101,6 +101,22 @@
       "size": 14260
     },
     {
+      "id": "fanfox",
+      "name": "FanFox",
+      "version": "0.1.0",
+      "apiVersion": 1,
+      "runtime": "script",
+      "kinds": ["manga", "manhwa", "manhua"],
+      "lang": "en",
+      "nsfw": false,
+      "permissions": {
+        "domains": ["fanfox.net", "mangafox.me", "mfcdn.net"]
+      },
+      "package": "packages/fanfox-0.1.0.zip",
+      "sha256": "7b57fea8d14d76503c851da00c7017e796def12ac199b0223e24c89fba7844e5",
+      "size": 16130
+    },
+    {
       "id": "visormanga",
       "name": "VisorManga",
       "version": "0.1.0",
