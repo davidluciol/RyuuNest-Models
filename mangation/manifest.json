@@ -1,0 +1,16 @@
+{
+  "id": "mangation",
+  "name": "Mangation",
+  "version": "0.1.0",
+  "apiVersion": 1,
+  "runtime": "script",
+  "kinds": ["manga", "manhwa", "manhua"],
+  "lang": "es",
+  "nsfw": true,
+  "baseUrl": "https://mangation.com",
+  "capabilities": ["popular", "latest", "search", "details", "pages", "home", "list", "filters"],
+  "permissions": {
+    "domains": ["mangation.com"]
+  },
+  "entry": "module.js"
+}

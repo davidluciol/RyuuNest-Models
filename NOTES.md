@@ -15,9 +15,26 @@
 - **Sexto módulo: `e-hentai`** (`script`) para `https://e-hentai.org` (HTML del índice + API JSON oficial; sin Cloudflare ni reto). Sin verificar en el teléfono.
 - **Séptimo módulo: `fanfox`** (`script`) para `https://fanfox.net` (HTML; Cloudflare delante pero sin reto; lector por la vista móvil). Sin verificar en el teléfono.
 - **Octavo módulo: `visormanga`** (`script`) para `https://visormanga.com` (Visor TMO Manga, 18+, en español): todo HTML estático, sin reto. Sin verificar en el teléfono.
+- **Noveno módulo: `mangation`** (`script`) para `https://mangation.com` (español, mezcla obras normales y +18): API JSON pública más `__data.json` de SvelteKit, sin reto. Sin verificar en el teléfono.
 - **Pendiente del lado de la app (no de este repo):** el adaptador `Http` real de la plataforma (la app nativa aún no rellena `HttpResponse.url`, anotado en P-74) y las pantallas de Fuentes/confirmación que conecten `InstallFlow`.
 
 ## Bitácora
+
+### 2026-11-22 · `mangation` 0.1.0: módulo nuevo (API JSON pública + `__data.json`)
+
+- **Escalera (§6):** API Anything no tiene `mangation` (`api -- sites`). No hizo falta `learn` ni Scrapling: el sitio es SvelteKit sobre Vercel, con Cloudflare solo como CDN; `fetch` de Node sin huella recibe 200, y el HTML declara `env.API_URL = https://api.mangation.com/api` (CORS abierto a `mangation.com`). robots.txt: `Allow: /` para `*` (solo veta crawlers de IA). El sanitizador no halló inyecciones en la portada.
+- **API (todo GET, JSON):** `/public/mangas/library?type=&demografy=&status=&adult=true|false&sort=newest|oldest&page=N` (24 por página; `{items,page,limit,total,totalPages}`; fuera de rango da 200 vacío), `/public/mangas?q=` (búsqueda), `/public/mangas/<slug>/chapters?page=N&order=asc` (10 por página), `/public/genres`. Las enums salen de sus errores 400 `VALIDATION_ERROR`: type `manga|manhwa|manhua|novela`, demografy `shonen|shojo|seinen|josei|kodomo|yaoi|yuri|bl|gl`, status `ongoing|completed|hiatus`. **No hay orden por actualización**: solo `newest`/`oldest` (por alta de la serie).
+- **`__data.json` (SvelteKit, formato devalue):** ficha `/manga/<slug>`, que trae la primera página de capítulos y `chaptersPagination`; lector `/manga/<slug>/chapter/<n>` (`reader.chapter.pages[{number,image}]`); `/popular` (48 fijas, sin paginar) y `/genre/<slug>?page=N`. Inexistente → 200 con nodo `{type:"error",error:{status:404}}` → `NOT_FOUND`. Se rehidrata con `hydrate()` (solo datos, sin `eval`). Es una ruta **interna** de SvelteKit y puede cambiar con un despliegue (BUGS).
+- **Decisiones del mantenedor:**
+  - `nsfw: true` con todo visible (`adult=true`), más el filtro «Incluir +18» (por defecto «Sí»). Con `adult=true` salen 74 obras; con `false`, 38.
+  - Búsqueda **híbrida**: la API devuelve como máximo 5 resultados, sin paginar, y exige al menos 2 letras. Si llega a 5, se completa recorriendo la library (≤10 páginas) y filtrando por título sin acentos. Con texto, los filtros tipo/estado/+18 se aplican en local. Sin texto, van al servidor. El género va por `/genre/<slug>` y **no se combina** con los demás filtros (salvo +18, aplicado en local).
+  - Novelas (`type: novela`) excluidas de todas las listas y del filtro de Tipo, **sin verificar**: hoy no hay ninguna (`total: 0`), así que no se pudo ver su lector.
+  - `home()`: Populares y Nuevos (`kind: "list"`). La sección de géneros quedó fuera: ningún módulo usa `kind: "genres"` y su forma de `items` no está definida en el contrato.
+- **Ids:** serie = `slug`; capítulo = `<slug>/<número>` (el lector va por número; admite decimales). Capítulos del más nuevo al más viejo; la API no da fechas.
+- **Imágenes:** `https://media.mangation.com/` + ruta relativa (`content/<id>/chapters/012/001.jpg`). Responden 200 sin `Referer` (el módulo lo manda igual). Dominio único `mangation.com` en `permissions` (cubre `api.` y `media.`).
+- **Pruebas:** `node --test mangation/bin/mangation.test.js` (9, sin red, fixtures inventadas en formato devalue). En vivo (`fetch` directo y `live.mjs` con proxy): popular (48), latest p1 (24, `hasNext`) y p4 (2, última), búsqueda «de» híbrida (28 resultados frente a los 5 de la API, 5 peticiones) y con +18 desactivado (13), filtros de servidor (manhwa/completed/oldest), género comedia p1/p2 y con +18 desactivado, home (48/24), list latest p2, filters (26 géneros), details de 12 capítulos (2 peticiones) y de 0 capítulos, pages (21 imágenes, la última da 200), details y pages inexistentes → `NOT_FOUND`.
+- **Red:** a mitad de la exploración (~45 peticiones seguidas) el DNS local dejó de resolver `mangation.com` y la conexión por IP también falló. Volvió solo al rato. No se pudo distinguir entre un fallo local y un corte del sitio: espaciar las pruebas.
+- **Paquete:** `packages/mangation-0.1.0.zip` con `ryuunest-module pack` (SHA-256 `26989a75e30fdbec2196b20fc020662f912c6af2590fc477fa401128eeedfad4`, 16 126 bytes, 21 archivos). `index.json` va en un PR aparte.
 
 ### 2026-11-22 · `visormanga` 0.1.0: módulo nuevo (HTML estático, sin reto)
 
