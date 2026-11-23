@@ -99,6 +99,22 @@
       "package": "packages/e-hentai-0.1.0.zip",
       "sha256": "92269f3d0de4593b3043108a2efe8acadbfae8ae9a10a964c374a68ab9f2f901",
       "size": 14260
+    },
+    {
+      "id": "fanfox",
+      "name": "FanFox",
+      "version": "0.1.0",
+      "apiVersion": 1,
+      "runtime": "script",
+      "kinds": ["manga", "manhwa", "manhua"],
+      "lang": "en",
+      "nsfw": false,
+      "permissions": {
+        "domains": ["fanfox.net", "mangafox.me", "mfcdn.net"]
+      },
+      "package": "packages/fanfox-0.1.0.zip",
+      "sha256": "63350b67fb3991c5d64bbc2f2eb333368a8343fa22a6ab3a8f7cb52ad825659a",
+      "size": 15830
     }
   ]
 }
