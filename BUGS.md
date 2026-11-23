@@ -43,6 +43,14 @@
 - 2026-11-22 · todas · `host.fetch` sin huella de navegador recibe 403 «Just a moment» de Cloudflare en la API (`www.luscious.net/graphql/nobatch/`) · causa: WAF por huella TLS · abierto (sin verificar en el teléfono; se tipa `BLOCKED`).
 - 2026-11-22 · pages/portadas · parte de las imágenes son AVIF (`cdn3.luscious.net`) · causa: el sitio las sirve así · abierto (sin verificar que la app las decodifique).
 
+## fanfox
+
+- 2026-11-22 · pages/portadas · las URL llevan `token` y `ttl` (caducan en ~1 día) y dan 403 sin `Referer: https://fanfox.net/` · causa: diseño del sitio · abierto (la app no debe cachear las URL mucho tiempo y debe enviar los `headers` de `ImageRef`).
+- 2026-11-22 · pages (respaldo) · el lector de escritorio cuenta un anuncio final en `imagecount` y lo sirve con nombres que parecen páginas (`d025.jpg`); el respaldo descarta siempre la última imagen · causa: anuncio del sitio · abierto (comprobado en 3 capítulos; si a un capítulo sin anuncio le falta la última página, revisar con capturas). La vía principal (móvil) no lo trae.
+- 2026-11-22 · details · una serie inexistente redirige a `/search`; el módulo da `NOT_FOUND` por la URL final o por `Location`. Si la app no rellena `HttpResponse.url` (P-74) y sigue la redirección, sale `PARSE` en vez de `NOT_FOUND` · abierto (del lado de la app).
+- 2026-11-22 · search · el filtro de género admite uno solo: con varios (`genres=1,12`), el servidor ignora alguno · causa: límite del sitio · abierto (el filtro es `select`).
+- 2026-11-22 · manifest · `nsfw: false` aunque hay series para adultos (la cookie `isAdult=1` las muestra), por decisión del mantenedor; la ficha marca `nsfw: true` si tiene Adult, Smut o Mature, pero las listas no lo indican · decisión, no bug.
+
 ## e-hentai
 
 - 2026-11-22 · latest/search · la página N cuesta N peticiones (paginación por cursor `?next=`, sin estado en el módulo) · causa: el sitio quitó `?page=` · abierto (aceptado por el mantenedor; arreglo real = cursor opaco en el contrato de la app).
