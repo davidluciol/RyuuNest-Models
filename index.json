@@ -2,7 +2,7 @@
   "format": "ryuunest-repo",
   "version": 1,
   "name": "RyuuNest-Models",
-  "updatedAt": "2026-11-22T20:00:00.000Z",
+  "updatedAt": "2026-11-23T03:45:00.000Z",
   "modules": [
     {
       "id": "zonatmo",
@@ -115,6 +115,22 @@
       "package": "packages/fanfox-0.1.0.zip",
       "sha256": "7b57fea8d14d76503c851da00c7017e796def12ac199b0223e24c89fba7844e5",
       "size": 16130
+    },
+    {
+      "id": "visormanga",
+      "name": "VisorManga",
+      "version": "0.1.0",
+      "apiVersion": 1,
+      "runtime": "script",
+      "kinds": ["manga", "manhwa"],
+      "lang": "es",
+      "nsfw": true,
+      "permissions": {
+        "domains": ["visormanga.com", "imgvtmo.com"]
+      },
+      "package": "packages/visormanga-0.1.0.zip",
+      "sha256": "ba7c4b51c8ec2c17779b60b11e4b92f3f4610f862d17bb5c3aacf3ced4d86c2b",
+      "size": 11981
     }
   ]
 }
