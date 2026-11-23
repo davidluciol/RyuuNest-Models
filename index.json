@@ -113,8 +113,8 @@
         "domains": ["fanfox.net", "mangafox.me", "mfcdn.net"]
       },
       "package": "packages/fanfox-0.1.0.zip",
-      "sha256": "63350b67fb3991c5d64bbc2f2eb333368a8343fa22a6ab3a8f7cb52ad825659a",
-      "size": 15830
+      "sha256": "7b57fea8d14d76503c851da00c7017e796def12ac199b0223e24c89fba7844e5",
+      "size": 16130
     }
   ]
 }
