@@ -14,6 +14,8 @@ import { unpack } from "./utils/unpack.js";
 const httpsUrl = (src) => src.replace(/^(https?:)?\/\//u, "https://");
 const IMAGE_HOST = /^https:\/\/[a-z0-9.-]+\.(mangafox\.me|mfcdn\.net)\//u;
 
+export const FALLBACK_NOTICE = "Aviso: se quitó un anuncio al final; puede faltar la última página";
+
 function chapterOf(chapterId) {
   const id = String(chapterId ?? "");
   if (!CHAPTER_ID.test(id)) throw fail("NOT_FOUND", `Identificador de capítulo no válido: ${chapterId}`);
@@ -63,7 +65,12 @@ async function desktopImages(host, id) {
 export async function pages(host, chapterId) {
   const id = chapterOf(chapterId);
   let images = await mobileImages(host, id);
-  if (images.length === 0) images = await desktopImages(host, id);
+  const fallback = images.length === 0;
+  if (fallback) images = await desktopImages(host, id);
   if (images.length === 0) throw fail("PARSE", "El capítulo no trae imágenes", { url: `${BASE_URL}/manga/${id}/1.html` });
-  return { images: images.map((url) => ({ url, headers: imageHeaders() })) };
+  return {
+    // El respaldo descarta la última imagen (anuncio): se avisa por si era una página real.
+    ...(fallback ? { title: FALLBACK_NOTICE } : {}),
+    images: images.map((url) => ({ url, headers: imageHeaders() })),
+  };
 }

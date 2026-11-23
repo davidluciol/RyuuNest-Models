@@ -171,7 +171,8 @@ test("fanfox: pages pasa a chapterfun.ashx si la vista móvil no trae imágenes"
     if (url.includes("page=3&")) return reply(200, fixture("chapterfun-3.txt"));
     return reply(200, fixture("reader.html"));
   };
-  const { images } = await create(makeHost(route, requests)).pages("serie_inventada_uno/c001");
+  const { title, images } = await create(makeHost(route, requests)).pages("serie_inventada_uno/c001");
+  assert.equal(title, "Aviso: se quitó un anuncio al final; puede faltar la última página");
   assert.deepEqual(requests.map((r) => r.url), [
     "https://m.fanfox.net/roll_manga/serie_inventada_uno/c001/1.html",
     "https://fanfox.net/manga/serie_inventada_uno/c001/1.html",

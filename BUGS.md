@@ -51,7 +51,7 @@
 
 ### Posibles bugs (fanfox)
 
-- 2026-11-22 · pages (respaldo) · **aviso:** si un capítulo se leyó por la vía de escritorio (`chapterfun.ashx`), puede faltar su última imagen. Ese lector cuenta en `imagecount` un anuncio final y lo sirve con nombres que parecen páginas (`cp_e18.jpg`, `d01f.jpg`, `d025.jpg`), así que el respaldo descarta siempre la última. Si un capítulo no trae anuncio, se pierde una página real · causa: anuncio del sitio · posible bug (comprobado en 3 capítulos). La vía principal (vista móvil) no trae el anuncio ni pierde páginas; el respaldo solo entra si la móvil llega vacía.
+- 2026-11-22 · pages (respaldo) · **aviso:** si un capítulo se leyó por la vía de escritorio (`chapterfun.ashx`), puede faltar su última imagen. Ese lector cuenta en `imagecount` un anuncio final y lo sirve con nombres que parecen páginas (`cp_e18.jpg`, `d01f.jpg`, `d025.jpg`), así que el respaldo descarta siempre la última. Si un capítulo no trae anuncio, se pierde una página real · causa: anuncio del sitio · posible bug (comprobado en 3 capítulos). La vía principal (vista móvil) no trae el anuncio ni pierde páginas; el respaldo solo entra si la móvil llega vacía. El lector lo avisa: en ese caso `pages` devuelve `title` = «Aviso: se quitó un anuncio al final; puede faltar la última página».
 - 2026-11-22 · manifest · `nsfw: false` aunque hay series para adultos (la cookie `isAdult=1` las muestra). Contradice la «declaración honesta» de `AGENTS.md` §0, pero se mantiene por decisión del mantenedor: hay más series SFW, la ficha marca `nsfw: true` si tiene Adult, Smut o Mature, y la app ya avisa por cómic NSFW (segundo aviso). Las listas no lo indican · posible bug (decisión aceptada).
 
 ## e-hentai
