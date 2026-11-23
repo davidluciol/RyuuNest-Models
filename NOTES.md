@@ -13,9 +13,21 @@
 - **Tercer módulo: `m440`** (`script`) para `https://m440.in`, con las cinco operaciones: listas desde el home, búsqueda por el JSON de autocompletado, ficha con capítulos cifrados (AES) y lector en una sola vista. Publicado `0.1.0` (la `0.2.0` con home dinámico está empaquetada, sin entrada en `index.json`); pendiente la prueba dentro de la app y ampliar `capabilities` en el SDK (hoy solo admite tres).
 - **Quinto módulo: `luscious`** (`script`) para `https://www.luscious.net` (API GraphQL; Cloudflare delante, como YupManga). Sin verificar en el teléfono.
 - **Sexto módulo: `e-hentai`** (`script`) para `https://e-hentai.org` (HTML del índice + API JSON oficial; sin Cloudflare ni reto). Sin verificar en el teléfono.
+- **Módulo `visormanga`** (`script`) para `https://visormanga.com` (Visor TMO Manga, 18+, en español): todo HTML estático, sin reto. Sin verificar en el teléfono.
 - **Pendiente del lado de la app (no de este repo):** el adaptador `Http` real de la plataforma (la app nativa aún no rellena `HttpResponse.url`, anotado en P-74) y las pantallas de Fuentes/confirmación que conecten `InstallFlow`.
 
 ## Bitácora
+
+### 2026-11-22 · `visormanga` 0.1.0: módulo nuevo (HTML estático, sin reto)
+
+- **Escalera (§6):** API Anything no tiene `visormanga` (`api -- sites`). No se intentó `learn`: el sitio pinta todo en el HTML, así que una op aprendida no aportaría nada que el módulo no lea directo. Scrapling tampoco hizo falta: Cloudflare está solo como CDN y `fetch` de Node sin huella recibe 200 en portada, biblioteca, géneros, ficha y lector. robots.txt: `Allow: /` para `*` (solo veta crawlers de IA por User-Agent). El sanitizador no halló inyecciones (portada, biblioteca, búsqueda, género, ficha, lector). El lector trae un script en línea de anuncios (atob/fetch) que no se usa.
+- **Listas:** `/biblioteca?page=N` (28 por página, ~721 páginas, orden propio del sitio sin declarar) = `popular` y sección «Biblioteca». La barra lateral de `/biblioteca` trae «POPULAR» (4 series, sin paginar). Portada: «Últimos capítulos agregados» (enlaces `/leer/<slug>-NN.NN`; la serie sale de quitar `-NN.NN`, comprobado en 20 de 20) = `latest`, y «Últimos manhwas agregados». Ninguna de las dos pagina. `home()` = 4 secciones con 2 peticiones. `hasNext` = el paginador enlaza a `page=N+1`; fuera de rango responde 200 vacío.
+- **Buscador (§7):** `/biblioteca?search=<texto>&page=N`. El género va por `/genero/<slug>?page=N` (48 géneros) y **no se combina** con el texto (comprobado: `?search=` se ignora en `/genero/` y `&genero=` en `/biblioteca`), así que con un género elegido se ignora el texto. Filtro: `genre` (select).
+- **Ficha:** `/manga/<slug>`. El `<h1>` termina en «(AAAA)»: se quita del título y va como «Año: AAAA» al principio de la descripción (decisión del mantenedor). Tipo (Manhwa/Manga/…) en `hint` y `extra.Tipo`. Sin estado ni autor en la página (`status: unknown`). Capítulos `/leer/<slug>-NN.NN`, del más nuevo al más viejo, sin fechas. Inexistente → 404 real → `NOT_FOUND`.
+- **Lector:** `/leer/<slug>-NN.NN`, todas las imágenes en `img.lazyload[data-src]` (`src` es un GIF de carga). 1368 imágenes de 22 capítulos, todas en `v2.imgvtmo.com`; descargan sin `Referer` (el módulo lo manda igual). Portadas en `thumbs.visormanga.com`.
+- **Manifest:** `nsfw: true` (el sitio se declara «Mangas y Manhwas 18+»), `lang: "es"`, `kinds` manga y manhwa, dominios `visormanga.com` (cubre `thumbs.`) e `imgvtmo.com`. `ryuunest-module validate` lo acepta.
+- **Pruebas:** `RYUUNEST_REPO=<ruta absoluta al clon> node --test visormanga/bin/visormanga.test.js` (9, sin red, fixtures inventadas). En vivo (`live.mjs` con proxy, y `fetch` directo): popular p1 (28, `hasNext`) y p721 (2, última), latest (19 sin duplicados), búsqueda «amor» p2, búsqueda por género (romance; acción p170 última) y sin resultados, home (19/20/4/28), details de una serie real (65 capítulos), details y pages inexistentes → `NOT_FOUND`, pages de 2 capítulos (18 y 84 imágenes).
+- **Paquete:** `packages/visormanga-0.1.0.zip` con `ryuunest-module pack` (SHA-256 `ba7c4b51c8ec2c17779b60b11e4b92f3f4610f862d17bb5c3aacf3ced4d86c2b`, 11 981 bytes, 15 archivos). `index.json` va en un PR aparte.
 
 ### 2026-11-22 · `e-hentai` 0.1.0: módulo nuevo (HTML del índice + API JSON)
 
