@@ -18,7 +18,8 @@ function chapterOf(slug, chapter) {
   if (!Number.isFinite(number)) return undefined;
   const id = `${slug}/${chapter.number}`;
   const title = String(chapter.title ?? "").trim();
-  return { id, title: title ? `Capítulo ${chapter.number}: ${title}` : `Capítulo ${chapter.number}`, number, releases: [{ id }] };
+  // Solo el título del sitio: la app antepone «Capítulo N» (antes salía «Capítulo 103: Capítulo 103.00»).
+  return { id, title: title || `Capítulo ${chapter.number}`, number, releases: [{ id }] };
 }
 
 /** La ficha ya trae la página 1 (orden ascendente); el resto se pide a la API en paralelo. */
