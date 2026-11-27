@@ -76,7 +76,7 @@ Cada módulo de este repo resulta en exactamente esto:
    - **Solo con este repo** (la vía común de un primer PR): guarda en `bin/fixtures/` una copia del HTML o JSON real de cada página que el módulo vaya a leer, verifica tus selectores contra esos archivos y añade en `bin/` una prueba mínima con Node (`node --test`) que no toque la red y pase por las 5 operaciones declaradas en `capabilities`. Lo «sin verificar» contra el sitio real queda dicho en el PR y en `NOTES.md`.
    - Un módulo que no se puede probar también es un defecto del módulo.
 8. **Instalación solo por esta vía.** Sin rutas locales ni pasos que el usuario tenga que ejecutar. La app descarga solo así: `index.json` → pantalla de confirmación → `.zip` verificado.
-9. **Sin spread de `await`** (`...(await x)`) dentro de un literal: Hermes (motor de la app) pierde las propiedades; asigna antes a una constante. Lo vigila `tools/hermes-patterns.test.mjs`.
+9. **Sin flechas async con parámetros desestructurados (`async ({ id }) =>`) ni spread de `await` (`...(await x)`)**: Hermes (motor de la app) devuelve `undefined` para ese `await`; usa `for…of` o una función `async` normal. Lo vigila `tools/hermes-patterns.test.mjs`.
 
 ## 2. Empaquetado y publicación
 
