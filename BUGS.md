@@ -45,6 +45,8 @@
 - 2026-11-22 · pages/portadas · parte de las imágenes son AVIF (`cdn3.luscious.net`) · causa: el sitio las sirve así · abierto (sin verificar que la app las decodifique).
 - 2026-11-27 · home · en Hermes `PARSE «sections[0]: «items» debe ser una lista»` (y en FanFox «Cannot read property 'items' of undefined») · causa real: el `await` dentro de una flecha async con parámetros desestructurados devuelve `undefined` en Hermes; el arreglo 0.1.1 (quitar el spread) NO lo resolvía · resuelto en 0.1.2 (bucle `for…of` secuencial); pendiente de confirmar en el teléfono.
 - 2026-11-27 · details · en el S25, al abrir un álbum: «details() devolvió una forma fuera del contrato (SPEC §6.2): «altTitles» debe ser una lista» · causa: `details.js` no devolvía `altTitles` · resuelto en 0.1.3 (`altTitles: []`; test con el validador de la app).
+- 2026-11-27 · pages · `TIMEOUT` en `AlbumListOwnPictures` en el S25 (Expo Go, 2 de 2) · no se reproduce el 2026-11-27 (respuesta en 48 ms; desde el PC 240 ms por página): conexión muerta de Expo Go sin el OkHttp con ping de G6, no el módulo · cerrado (verificar con el APK).
+- 2026-11-27 · pages · los álbumes de más de 1000 imágenes se cortaban en 1000 (el API anónimo corta cada `display` en 20 páginas y no deja cambiar `items_per_page`) · resuelto en 0.1.4: si `date_newest` llega al tope, se completa con `date_oldest` hasta solaparse (hasta 2000; álbum 326430: 1321/1321 en 27 peticiones).
 
 ## fanfox
 
