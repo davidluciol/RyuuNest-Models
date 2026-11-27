@@ -2,7 +2,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
 import create from "../module.js";
+
+// Validador de forma de la app (SPEC §6.2): el mismo que aplica RyuuNest al recibir cada método.
+const { detailsShapeViolation, homeShapeViolation, pageShapeViolation, pagesShapeViolation } = await import(
+  pathToFileURL(`${process.env.RYUUNEST_REPO}/packages/core/dist/runtimes/contractShape.js`).href
+);
 
 const fixture = (name) => readFileSync(new URL(`./fixtures/${name}`, import.meta.url), "utf8");
 const reply = (status, text) => ({ status, text: async () => text });
@@ -23,7 +29,9 @@ const lists = (requests) => makeHost(() => reply(200, fixture("list.json")), req
 
 test("luscious: latest arma la consulta GraphQL y las tarjetas", async () => {
   const requests = [];
-  const { items, hasNext } = await create(lists(requests)).latest(2);
+  const page = await create(lists(requests)).latest(2);
+  const { items, hasNext } = page;
+  assert.equal(pageShapeViolation(page), undefined);
   const [call] = requests;
   assert.ok(call.url.startsWith("https://www.luscious.net/graphql/nobatch/?operationName=AlbumList&query="));
   assert.deepEqual(call.variables, {
@@ -76,7 +84,9 @@ test("luscious: popular, búsqueda con texto y con filtros", async () => {
 test("luscious: home, list y filters", async () => {
   const requests = [];
   const module = create(lists(requests));
-  const { sections } = await module.home();
+  const home = await module.home();
+  const { sections } = home;
+  assert.equal(homeShapeViolation(home), undefined);
   assert.deepEqual(sections.map((s) => s.id), ["date_trending", "date_newest", "rating_all_time"]);
   assert.equal(sections[0].items.length, 2);
   await module.list("date_last_interaction", 2);
@@ -89,6 +99,8 @@ test("luscious: home, list y filters", async () => {
 test("luscious: details lee el álbum y arma un capítulo", async () => {
   const requests = [];
   const detail = await create(makeHost(() => reply(200, fixture("album.json")), requests)).details("900001");
+  assert.equal(detailsShapeViolation(detail), undefined);
+  assert.deepEqual(detail.altTitles, []);
   assert.deepEqual(requests[0].variables, { id: "900001" });
   assert.equal(detail.description, "Una historia de prueba.");
   assert.deepEqual(detail.genres, ["Fetish", "etiqueta demo"]);
@@ -116,7 +128,9 @@ test("luscious: details de álbum borrado o id inválido → NOT_FOUND", async (
 test("luscious: pages pagina, ordena por posición y elige la imagen más ancha", async () => {
   const requests = [];
   const host = makeHost((op, v) => reply(200, fixture(`pictures-${v.input.page}.json`)), requests);
-  const { images } = await create(host).pages("900001");
+  const chapter = await create(host).pages("900001");
+  const { images } = chapter;
+  assert.equal(pagesShapeViolation(chapter), undefined);
   assert.deepEqual(requests.map((r) => r.variables.input), [1, 2].map((page) => ({
     filters: [{ name: "album_id", value: "900001" }],
     display: "date_newest",
