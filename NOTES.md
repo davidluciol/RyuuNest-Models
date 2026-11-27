@@ -20,9 +20,11 @@
 
 ## Bitácora
 
-### 2026-11-27 · `e-hentai`, `fanfox`, `hitomi`, `luscious`, `mangation` 0.1.1: fix Hermes (`home`)
+### 2026-11-27 · `e-hentai`, `fanfox`, `hitomi`, `luscious`, `mangation` 0.1.2: fix Hermes real (`home`)
 
-- Causa: `...(await x)` dentro de un literal de objeto en una flecha async; Hermes (app) perdía `items` y la app mostraba `PARSE`. Arreglo: asignar el `await` a una constante antes del `return` (en `mangation` también la búsqueda). YupManga no se toca (su spread va dentro de un `for` y funciona en el dispositivo).
+- Causa real: el `await` dentro de una flecha async con parámetros desestructurados (`SECTIONS.map(async ({ id }) => …)`) devuelve `undefined` en Hermes (app). Arreglo: `for…of` secuencial dentro de una `async function`, igual que YupManga (que funciona en el teléfono). Es secuencial a propósito: el host ya serializa por dominio.
+- La 0.1.1 (solo quitar el spread de `await`) era insuficiente: en el teléfono FanFox 0.1.1 falló con «Cannot read property 'items' of undefined». Se mantiene en `packages/` como histórico, no se recomienda.
+- YupManga no se toca (su spread va dentro de un `for` y funciona en el dispositivo; se excluye del test por lista).
 - Prueba: `tools/hermes-patterns.test.mjs` (recorre `*/module.js` y `*/bin/`, falla con archivo:línea; YupManga excluido por lista).
 - Verificación: `node --test` de los 5 módulos en verde; `apprun.mjs audit-release-hermes <mod> home` → `SHAPE: ok` en los 5 (luscious → `BLOCKED` Cloudflare, esperado en Node). Pendiente: confirmar en el teléfono.
 - Paquetes regenerados con `ryuunest-module pack` y `index.json` actualizado (`sha256`/`size` del zip exacto).
