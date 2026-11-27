@@ -179,6 +179,13 @@
 - **API Anything (probado, descartado para el reto):** ver `tools/README.md`. Su navegador sin interfaz recibe 403 de Cloudflare donde curl_cffi recibe 200, bloquea los POST del flujo y solo produciría operaciones de nivel navegador. **Salvaguarda adoptada:** `tools/canary_yupmanga.py` (6/6 y 16/16 aceptados el 2026-11-20).
 - **Idea para la app (no implementada):** reto de Cloudflare con navegador nativo. Viabilidad y alcance: SPEC §894 y IDEA 2.1 ya lo prevén como v2 (WebView + cookies). Resumen del análisis en la conversación del 2026-11-20: viable para el reto de Cloudflare de página (`cf_clearance`), no para el reto de YupManga.
 
+### 2026-11-26 · `visormanga` 0.1.1: capítulos sin imágenes y CDN caído
+
+- **Capítulos viejos:** el lector carga (`h1.chapter-h1`, `div.servers-all` vacío y `var all_imgs_url = [];`) pero sin imágenes. `pages` daba `PARSE` «El capítulo no trae imágenes». Decisión del mantenedor: `NOT_FOUND` «El sitio no tiene imágenes para este capítulo», sin peticiones extra. Si la página no parece un lector, sigue siendo `PARSE`. Arreglo en `bin/pages.js`; fixture inventada `bin/fixtures/reader-empty.html` y test nuevo (10/10 en verde).
+- **CDN caído:** `v2.imgvtmo.com` (y `imgvtmo.com`) no responde: el DNS público lo resuelve a un aparcamiento de Porkbun (207.207.210.x) y el TLS falla. La app muestra «No se pudo cargar la página» en cada imagen. El módulo no puede arreglarlo: no se cambian hosts ni se inventan URLs. Abierto en BUGS.md (del sitio).
+- **Manifest:** `0.1.0` → `0.1.1`. Paquete `packages/visormanga-0.1.1.zip` con `ryuunest-module pack` (sha256 `4c376167…dc3b1`, 12586 bytes, 16 archivos). `index.json` actualizado en este mismo PR (la entrada estaba en 0.1.0).
+- **Pendiente:** confirmar que el CDN vuelve a resolver antes de dar por útil el módulo en la app; el mantenedor decide si hay un host alternativo del sitio (sin inventarlo).
+
 ## Preguntas abiertas
 
 1. **Existencia del repo:** ¿está ya creado `davidluciol/RyuuNest-Models` en GitHub, o se creará al subir estos documentos? (de esto depende la URL que se anuncie en la app).
