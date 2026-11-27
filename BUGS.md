@@ -84,6 +84,7 @@
 
 - 2026-11-22 · listas · las novelas (`type: novela`) se excluyen sin verificar: hoy no hay ninguna en el catálogo · posible bug (si aparecen con imágenes, quitar el filtro `isComic`).
 - 2026-11-22 · todas · tras ~45 peticiones seguidas el DNS local dejó de resolver el dominio y la conexión por IP falló durante un rato · causa: sin determinar (red local o corte del sitio) · posible bug.
+- 2026-11-27 · details · el capítulo salía «Capítulo 103: Capítulo 103.00» porque el módulo anteponía la numeración y la app también · resuelto en 0.1.3 (el título es el del sitio; la app antepone «Capítulo N» y no lo repite si ya viene numerado).
 
 ## visormanga
 

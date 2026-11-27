@@ -119,7 +119,7 @@
     {
       "id": "mangation",
       "name": "Mangation",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "apiVersion": 1,
       "runtime": "script",
       "kinds": ["manga", "manhwa", "manhua"],
@@ -128,9 +128,9 @@
       "permissions": {
         "domains": ["mangation.com"]
       },
-      "package": "packages/mangation-0.1.2.zip",
-      "sha256": "5710a84ae52b70b9f51e86d24a6d6b0e319117a46e8a262dae18fa1b3cc537a7",
-      "size": 16241
+      "package": "packages/mangation-0.1.3.zip",
+      "sha256": "2adc5411cbfcf31593024bc3051fd20a0013f543234e3fbf601622077dcd4829",
+      "size": 16335
     }
   ]
 }
