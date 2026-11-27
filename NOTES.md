@@ -20,6 +20,13 @@
 
 ## Bitácora
 
+### 2026-11-27 · `e-hentai`, `fanfox`, `hitomi`, `luscious`, `mangation` 0.1.1: fix Hermes (`home`)
+
+- Causa: `...(await x)` dentro de un literal de objeto en una flecha async; Hermes (app) perdía `items` y la app mostraba `PARSE`. Arreglo: asignar el `await` a una constante antes del `return` (en `mangation` también la búsqueda). YupManga no se toca (su spread va dentro de un `for` y funciona en el dispositivo).
+- Prueba: `tools/hermes-patterns.test.mjs` (recorre `*/module.js` y `*/bin/`, falla con archivo:línea; YupManga excluido por lista).
+- Verificación: `node --test` de los 5 módulos en verde; `apprun.mjs audit-release-hermes <mod> home` → `SHAPE: ok` en los 5 (luscious → `BLOCKED` Cloudflare, esperado en Node). Pendiente: confirmar en el teléfono.
+- Paquetes regenerados con `ryuunest-module pack` y `index.json` actualizado (`sha256`/`size` del zip exacto).
+
 ### 2026-11-22 · `mangation` 0.1.0: módulo nuevo (API JSON pública + `__data.json`)
 
 - **Escalera (§6):** API Anything no tiene `mangation` (`api -- sites`). No hizo falta `learn` ni Scrapling: el sitio es SvelteKit sobre Vercel, con Cloudflare solo como CDN; `fetch` de Node sin huella recibe 200, y el HTML declara `env.API_URL = https://api.mangation.com/api` (CORS abierto a `mangation.com`). robots.txt: `Allow: /` para `*` (solo veta crawlers de IA). El sanitizador no halló inyecciones en la portada.
