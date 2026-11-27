@@ -128,12 +128,11 @@ export async function list(host, sectionId, page) {
 }
 
 export async function home(host) {
-  const sections = await Promise.all(
-    SECTIONS.map(async ({ id, title, load }) => {
-      const page = await load(host, 1);
-      return { id, title, kind: "list", items: page.items, hasNext: page.hasNext };
-    }),
-  );
+  const sections = [];
+  for (const section of SECTIONS) {
+    const page = await section.load(host, 1);
+    sections.push({ id: section.id, title: section.title, kind: "list", items: page.items, hasNext: page.hasNext });
+  }
   return { sections };
 }
 
