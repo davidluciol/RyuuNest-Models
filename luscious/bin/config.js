@@ -16,8 +16,9 @@ export const QUERIES = {
     "query AlbumListOwnPictures($input: PictureListInput!) { picture { list(input: $input) { info { has_next_page } items { id position url_to_original thumbnails { width url } } } } }",
 };
 
-/** Tope de páginas de 50 imágenes por álbum (un álbum de 2000 imágenes ya es excepcional). */
-export const MAX_PICTURE_PAGES = 40;
+/** El API anónimo da 50 imágenes por página y corta cada orden en 1000 (20 páginas); con los dos órdenes, 2000. */
+export const PICTURE_PAGES_PER_ORDER = 20;
+export const PICTURE_LIST_CAP = 1000;
 
 export const DEFAULT_LANGUAGE = "3";
 export const LANGUAGES = [

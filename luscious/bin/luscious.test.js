@@ -144,6 +144,31 @@ test("luscious: pages pagina, ordena por posición y elige la imagen más ancha"
   assert.equal(images[0].headers.Referer, "https://www.luscious.net/");
 });
 
+test("luscious: pages completa con date_oldest los álbumes que pasan del tope de 1000 del API", async () => {
+  // Álbum simulado de 1100 imágenes: el API anónimo da 50 por página y corta en 20 páginas por orden.
+  const TOTAL = 1100;
+  const picture = (position) => ({ id: String(position), position, url_to_original: `https://ah-img.luscious.net/a/${position}.jpg` });
+  const listing = (display, page) => {
+    const positions = Array.from({ length: 50 }, (_, i) =>
+      display === "date_newest" ? TOTAL - (page - 1) * 50 - i : (page - 1) * 50 + i + 1,
+    );
+    return JSON.stringify({ data: { picture: { list: { info: { has_next_page: page < 20 }, items: positions.map(picture) } } } });
+  };
+  const requests = [];
+  const host = makeHost((op, v) => reply(200, listing(v.input.display, v.input.page)), requests);
+  const chapter = await create(host).pages("900003");
+  assert.equal(pagesShapeViolation(chapter), undefined);
+  assert.equal(chapter.images.length, TOTAL);
+  assert.equal(chapter.images[0].url, "https://ah-img.luscious.net/a/1.jpg");
+  assert.equal(chapter.images[TOTAL - 1].url, `https://ah-img.luscious.net/a/${TOTAL}.jpg`);
+  // 20 de date_newest y date_oldest hasta toparse con lo ya visto (página 3: posiciones 101–150).
+  assert.deepEqual(
+    requests.filter((r) => r.variables.input.display === "date_oldest").map((r) => r.variables.input.page),
+    [1, 2, 3],
+  );
+  assert.equal(requests.length, 23);
+});
+
 test("luscious: errores tipados (Cloudflare, 429, JSON roto, error GraphQL)", async () => {
   const cases = [
     [reply(403, fixture("challenge.html")), "BLOCKED"],
