@@ -1,5 +1,6 @@
-// Hermes (motor JS de la app) pierde las propiedades de `...(await x)` dentro de un literal de objeto
-// en funciones async: el resultado llega sin `items`. Usa `const` explícito antes de construir el objeto.
+// Hermes (motor JS de la app) devuelve `undefined` para el `await` dentro de una flecha async con
+// parámetros desestructurados (`async ({ id }) => ...`), y pierde las props de `...(await x)` en un literal.
+// Con parámetros planos o en `async function` normal funciona. Por eso se prohíben ambas formas.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
@@ -7,7 +8,10 @@ import { dirname, join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const SPREAD_AWAIT = /\.\.\.\s*\(\s*await\b/;
+const RULES = [
+  { name: "spread de await (`...(await x)`)", pattern: /\.\.\.\s*\(\s*await\b/ },
+  { name: "flecha async con parámetros desestructurados (`async ({ ... }) =>`)", pattern: /async\s*\(\s*[{[]/ },
+];
 // YupManga usa el spread dentro de un `for` y funciona en el dispositivo (verificado): no se toca.
 const ALLOWED_PREFIXES = ["yupmanga/"];
 
@@ -41,20 +45,18 @@ function modulesFiles() {
   return files;
 }
 
-test("ningún módulo usa spread de await (`...(await x)`) por el bug de Hermes", () => {
-  const violations = [];
-  for (const file of modulesFiles()) {
-    const rel = relative(ROOT, file).split(sep).join("/");
-    if (ALLOWED_PREFIXES.some((prefix) => rel.startsWith(prefix))) continue;
-    readFileSync(file, "utf8")
-      .split("\n")
-      .forEach((line, index) => {
-        if (SPREAD_AWAIT.test(line)) violations.push(`${rel}:${index + 1}`);
-      });
-  }
-  assert.deepEqual(
-    violations,
-    [],
-    `Spread de await encontrado (asigna a una constante antes):\n${violations.join("\n")}`,
-  );
-});
+for (const rule of RULES) {
+  test(`ningún módulo usa ${rule.name} por el bug de Hermes`, () => {
+    const violations = [];
+    for (const file of modulesFiles()) {
+      const rel = relative(ROOT, file).split(sep).join("/");
+      if (ALLOWED_PREFIXES.some((prefix) => rel.startsWith(prefix))) continue;
+      readFileSync(file, "utf8")
+        .split("\n")
+        .forEach((line, index) => {
+          if (rule.pattern.test(line)) violations.push(`${rel}:${index + 1}`);
+        });
+    }
+    assert.deepEqual(violations, [], `Encontrado ${rule.name}; usa for…of o una función async normal:\n${violations.join("\n")}`);
+  });
+}

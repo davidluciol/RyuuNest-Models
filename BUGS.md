@@ -43,14 +43,14 @@
 
 - 2026-11-22 · todas · `host.fetch` sin huella de navegador recibe 403 «Just a moment» de Cloudflare en la API (`www.luscious.net/graphql/nobatch/`) · causa: WAF por huella TLS · abierto (sin verificar en el teléfono; se tipa `BLOCKED`).
 - 2026-11-22 · pages/portadas · parte de las imágenes son AVIF (`cdn3.luscious.net`) · causa: el sitio las sirve así · abierto (sin verificar que la app las decodifique).
-- 2026-11-27 · home · en Hermes `PARSE «sections[0]: «items» debe ser una lista»` (spread de await en `home`) · causa: bug de Hermes · resuelto en 0.1.1 (asignar antes); pendiente de confirmar en el teléfono.
+- 2026-11-27 · home · en Hermes `PARSE «sections[0]: «items» debe ser una lista»` (y en FanFox «Cannot read property 'items' of undefined») · causa real: el `await` dentro de una flecha async con parámetros desestructurados devuelve `undefined` en Hermes; el arreglo 0.1.1 (quitar el spread) NO lo resolvía · resuelto en 0.1.2 (bucle `for…of` secuencial); pendiente de confirmar en el teléfono.
 
 ## fanfox
 
 - 2026-11-22 · pages/portadas · las URL llevan `token` y `ttl` (caducan en ~1 día) y dan 403 sin `Referer: https://fanfox.net/` · causa: diseño del sitio · abierto (la app no debe cachear las URL mucho tiempo y debe enviar los `headers` de `ImageRef`).
 - 2026-11-22 · details · una serie inexistente redirige a `/search`; el módulo da `NOT_FOUND` por la URL final o por `Location`. Si la app no rellena `HttpResponse.url` (P-74) y sigue la redirección, sale `PARSE` en vez de `NOT_FOUND` · abierto (del lado de la app).
 - 2026-11-22 · search · el filtro de género admite uno solo: con varios (`genres=1,12`), el servidor ignora alguno · causa: límite del sitio · abierto (el filtro es `select`).
-- 2026-11-27 · home · en Hermes `PARSE «sections[0]: «items» debe ser una lista»` (spread de await en `home`) · causa: bug de Hermes · resuelto en 0.1.1 (asignar antes); pendiente de confirmar en el teléfono.
+- 2026-11-27 · home · en Hermes `PARSE «sections[0]: «items» debe ser una lista»` (y en FanFox «Cannot read property 'items' of undefined») · causa real: el `await` dentro de una flecha async con parámetros desestructurados devuelve `undefined` en Hermes; el arreglo 0.1.1 (quitar el spread) NO lo resolvía · resuelto en 0.1.2 (bucle `for…of` secuencial); pendiente de confirmar en el teléfono.
 
 ### Posibles bugs (fanfox)
 
@@ -63,11 +63,11 @@
 - 2026-11-22 · todas · veto temporal de IP («temporarily banned») por exceso de cargas; se tipa `RATE_LIMITED` · causa: límite del sitio · abierto (no se alcanzó en la prueba del 2026-11-22: 544 peticiones en ~10 min, de ellas 144 seguidas al dominio principal a ~3,7/s; ver NOTES).
 - 2026-11-22 · pages · al agotar la cuota de imágenes el sitio sirve `509.gif`; se tipa `RATE_LIMITED` · causa: límite del sitio · abierto.
 - 2026-11-22 · pages · las URL H@H (`*.hath.network`, a veces con puerto) caducan (`keystamp`) · causa: diseño del sitio · abierto (la app no debe cachear las URL mucho tiempo; sin verificar puertos en el visor).
-- 2026-11-27 · home · en Hermes `PARSE «sections[0]: «items» debe ser una lista»` (spread de await en `home`) · causa: bug de Hermes · resuelto en 0.1.1 (asignar antes); pendiente de confirmar en el teléfono.
+- 2026-11-27 · home · en Hermes `PARSE «sections[0]: «items» debe ser una lista»` (y en FanFox «Cannot read property 'items' of undefined») · causa real: el `await` dentro de una flecha async con parámetros desestructurados devuelve `undefined` en Hermes; el arreglo 0.1.1 (quitar el spread) NO lo resolvía · resuelto en 0.1.2 (bucle `for…of` secuencial); pendiente de confirmar en el teléfono.
 
 ## hitomi
 
-- 2026-11-27 · home · en Hermes `PARSE «sections[0]: «items» debe ser una lista»` (spread de await en `home`) · causa: bug de Hermes · resuelto en 0.1.1 (asignar antes); pendiente de confirmar en el teléfono.
+- 2026-11-27 · home · en Hermes `PARSE «sections[0]: «items» debe ser una lista»` (y en FanFox «Cannot read property 'items' of undefined») · causa real: el `await` dentro de una flecha async con parámetros desestructurados devuelve `undefined` en Hermes; el arreglo 0.1.1 (quitar el spread) NO lo resolvía · resuelto en 0.1.2 (bucle `for…of` secuencial); pendiente de confirmar en el teléfono.
 
 ## mangation
 
@@ -75,7 +75,7 @@
 - 2026-11-22 · details/pages/popular/géneros · se leen de `__data.json`, la ruta interna de SvelteKit (formato devalue), no de la API pública · causa: el sitio no expone ficha ni lector en la API · abierto (un despliegue puede cambiar la forma; las pruebas con fixtures no lo detectan).
 - 2026-11-22 · latest · «Nuevos» ordena por alta de la serie, no por capítulo actualizado · causa: la API solo admite `sort=newest|oldest` · abierto.
 - 2026-11-22 · search · el filtro de género no se combina con tipo/demografía/estado/orden (`/genre/<slug>` no los acepta) · causa: límite del sitio · abierto (+18 sí se aplica en local).
-- 2026-11-27 · home y search (búsqueda con 5 resultados) · en Hermes `PARSE «sections[0]: «items» debe ser una lista»` en `home` por spread de await · causa: bug de Hermes · resuelto en 0.1.1 (asignar antes, también en la rama de búsqueda); pendiente de confirmar en el teléfono.
+- 2026-11-27 · home · en Hermes `PARSE «sections[0]: «items» debe ser una lista»` · causa real: el `await` dentro de una flecha async con parámetros desestructurados devuelve `undefined` en Hermes (la 0.1.1 solo quitó el spread y no bastó) · resuelto en 0.1.2 (bucle `for…of` secuencial); la búsqueda de 0.1.1 (`const extra = await …`) se mantiene. Pendiente de confirmar en el teléfono.
 
 ### Posibles bugs (mangation)
 
