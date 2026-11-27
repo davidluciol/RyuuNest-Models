@@ -1,0 +1,62 @@
+// Hermes (motor JS de la app) devuelve `undefined` para el `await` dentro de una flecha async con
+// parámetros desestructurados (`async ({ id }) => ...`), y pierde las props de `...(await x)` en un literal.
+// Con parámetros planos o en `async function` normal funciona. Por eso se prohíben ambas formas.
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { dirname, join, relative, sep } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const RULES = [
+  { name: "spread de await (`...(await x)`)", pattern: /\.\.\.\s*\(\s*await\b/ },
+  { name: "flecha async con parámetros desestructurados (`async ({ ... }) =>`)", pattern: /async\s*\(\s*[{[]/ },
+];
+// YupManga usa el spread dentro de un `for` y funciona en el dispositivo (verificado): no se toca.
+const ALLOWED_PREFIXES = ["yupmanga/"];
+
+function listJs(dir) {
+  return readdirSync(dir).flatMap((name) => {
+    const path = join(dir, name);
+    if (statSync(path).isDirectory()) return name === "fixtures" ? [] : listJs(path);
+    return name.endsWith(".js") && !name.endsWith(".test.js") ? [path] : [];
+  });
+}
+
+function modulesFiles() {
+  const files = [];
+  for (const name of readdirSync(ROOT)) {
+    const site = join(ROOT, name);
+    if (!statSync(site).isDirectory() || name.startsWith(".") || name === "node_modules") continue;
+    const moduleJs = join(site, "module.js");
+    try {
+      statSync(moduleJs);
+      files.push(moduleJs);
+    } catch {
+      // carpeta sin módulo (tools, skills, packages…)
+    }
+    const bin = join(site, "bin");
+    try {
+      files.push(...listJs(bin));
+    } catch {
+      // sin bin/
+    }
+  }
+  return files;
+}
+
+for (const rule of RULES) {
+  test(`ningún módulo usa ${rule.name} por el bug de Hermes`, () => {
+    const violations = [];
+    for (const file of modulesFiles()) {
+      const rel = relative(ROOT, file).split(sep).join("/");
+      if (ALLOWED_PREFIXES.some((prefix) => rel.startsWith(prefix))) continue;
+      readFileSync(file, "utf8")
+        .split("\n")
+        .forEach((line, index) => {
+          if (rule.pattern.test(line)) violations.push(`${rel}:${index + 1}`);
+        });
+    }
+    assert.deepEqual(violations, [], `Encontrado ${rule.name}; usa for…of o una función async normal:\n${violations.join("\n")}`);
+  });
+}

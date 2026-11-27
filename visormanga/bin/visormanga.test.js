@@ -150,6 +150,13 @@ test("visormanga: pages lee data-src y descarta el GIF de carga y hosts ajenos",
   await assert.rejects(create(makeHost(() => reply(404, ""))).pages("serie-1.00"), { code: "NOT_FOUND" });
 });
 
+test("visormanga: lector sin imágenes da NOT_FOUND con mensaje claro, sin más peticiones", { skip: !repo }, async () => {
+  const requests = [];
+  const mod = create(makeHost(() => reply(200, fixture("reader-empty.html")), requests));
+  await assert.rejects(mod.pages("serie-inventada-cero-3.00"), { code: "NOT_FOUND", message: "El sitio no tiene imágenes para este capítulo" });
+  assert.equal(requests.length, 1);
+});
+
 test("visormanga: filters expone el select de géneros", async () => {
   const [genre] = await create({}).filters();
   assert.equal(genre.id, "genre");

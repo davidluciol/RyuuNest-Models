@@ -2,7 +2,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
 import create from "../module.js";
+
+// Validador de forma de la app (SPEC §6.2): el mismo que aplica RyuuNest al recibir cada método.
+const { detailsShapeViolation, homeShapeViolation, pageShapeViolation, pagesShapeViolation } = await import(
+  pathToFileURL(`${process.env.RYUUNEST_REPO}/packages/core/dist/runtimes/contractShape.js`).href
+);
 
 const fixture = (name) => readFileSync(new URL(`./fixtures/${name}`, import.meta.url), "utf8");
 const reply = (status, text) => ({ status, text: async () => text });
@@ -23,7 +29,9 @@ const lists = (requests) => makeHost(() => reply(200, fixture("list.json")), req
 
 test("luscious: latest arma la consulta GraphQL y las tarjetas", async () => {
   const requests = [];
-  const { items, hasNext } = await create(lists(requests)).latest(2);
+  const page = await create(lists(requests)).latest(2);
+  const { items, hasNext } = page;
+  assert.equal(pageShapeViolation(page), undefined);
   const [call] = requests;
   assert.ok(call.url.startsWith("https://www.luscious.net/graphql/nobatch/?operationName=AlbumList&query="));
   assert.deepEqual(call.variables, {
@@ -76,7 +84,9 @@ test("luscious: popular, búsqueda con texto y con filtros", async () => {
 test("luscious: home, list y filters", async () => {
   const requests = [];
   const module = create(lists(requests));
-  const { sections } = await module.home();
+  const home = await module.home();
+  const { sections } = home;
+  assert.equal(homeShapeViolation(home), undefined);
   assert.deepEqual(sections.map((s) => s.id), ["date_trending", "date_newest", "rating_all_time"]);
   assert.equal(sections[0].items.length, 2);
   await module.list("date_last_interaction", 2);
@@ -89,6 +99,8 @@ test("luscious: home, list y filters", async () => {
 test("luscious: details lee el álbum y arma un capítulo", async () => {
   const requests = [];
   const detail = await create(makeHost(() => reply(200, fixture("album.json")), requests)).details("900001");
+  assert.equal(detailsShapeViolation(detail), undefined);
+  assert.deepEqual(detail.altTitles, []);
   assert.deepEqual(requests[0].variables, { id: "900001" });
   assert.equal(detail.description, "Una historia de prueba.");
   assert.deepEqual(detail.genres, ["Fetish", "etiqueta demo"]);
@@ -116,7 +128,9 @@ test("luscious: details de álbum borrado o id inválido → NOT_FOUND", async (
 test("luscious: pages pagina, ordena por posición y elige la imagen más ancha", async () => {
   const requests = [];
   const host = makeHost((op, v) => reply(200, fixture(`pictures-${v.input.page}.json`)), requests);
-  const { images } = await create(host).pages("900001");
+  const chapter = await create(host).pages("900001");
+  const { images } = chapter;
+  assert.equal(pagesShapeViolation(chapter), undefined);
   assert.deepEqual(requests.map((r) => r.variables.input), [1, 2].map((page) => ({
     filters: [{ name: "album_id", value: "900001" }],
     display: "date_newest",
@@ -128,6 +142,31 @@ test("luscious: pages pagina, ordena por posición y elige la imagen más ancha"
     "https://cdn3.luscious.net/demo/900001/3.1280x0.avif",
   ]);
   assert.equal(images[0].headers.Referer, "https://www.luscious.net/");
+});
+
+test("luscious: pages completa con date_oldest los álbumes que pasan del tope de 1000 del API", async () => {
+  // Álbum simulado de 1100 imágenes: el API anónimo da 50 por página y corta en 20 páginas por orden.
+  const TOTAL = 1100;
+  const picture = (position) => ({ id: String(position), position, url_to_original: `https://ah-img.luscious.net/a/${position}.jpg` });
+  const listing = (display, page) => {
+    const positions = Array.from({ length: 50 }, (_, i) =>
+      display === "date_newest" ? TOTAL - (page - 1) * 50 - i : (page - 1) * 50 + i + 1,
+    );
+    return JSON.stringify({ data: { picture: { list: { info: { has_next_page: page < 20 }, items: positions.map(picture) } } } });
+  };
+  const requests = [];
+  const host = makeHost((op, v) => reply(200, listing(v.input.display, v.input.page)), requests);
+  const chapter = await create(host).pages("900003");
+  assert.equal(pagesShapeViolation(chapter), undefined);
+  assert.equal(chapter.images.length, TOTAL);
+  assert.equal(chapter.images[0].url, "https://ah-img.luscious.net/a/1.jpg");
+  assert.equal(chapter.images[TOTAL - 1].url, `https://ah-img.luscious.net/a/${TOTAL}.jpg`);
+  // 20 de date_newest y date_oldest hasta toparse con lo ya visto (página 3: posiciones 101–150).
+  assert.deepEqual(
+    requests.filter((r) => r.variables.input.display === "date_oldest").map((r) => r.variables.input.page),
+    [1, 2, 3],
+  );
+  assert.equal(requests.length, 23);
 });
 
 test("luscious: errores tipados (Cloudflare, 429, JSON roto, error GraphQL)", async () => {

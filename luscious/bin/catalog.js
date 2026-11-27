@@ -63,14 +63,11 @@ export const search = (host, query, page, filters) => albumPage(host, query, pag
 export const list = (host, sectionId, page) => albumPage(host, "", page, { order: sectionId });
 
 export async function home(host) {
-  const sections = await Promise.all(
-    SECTIONS.map(async ({ value, label }) => ({
-      id: value,
-      title: label,
-      kind: "list",
-      ...(await list(host, value, 1)),
-    })),
-  );
+  const sections = [];
+  for (const section of SECTIONS) {
+    const result = await list(host, section.value, 1);
+    sections.push({ id: section.value, title: section.label, kind: "list", items: result.items, hasNext: result.hasNext });
+  }
   return { sections };
 }
 

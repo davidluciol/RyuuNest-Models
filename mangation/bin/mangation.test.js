@@ -152,9 +152,10 @@ test("mangation: details junta la ficha y las páginas de capítulos", async () 
   assert.deepEqual(series.extra, { Tipo: "Manga", Demografía: "Shōnen", Estado: "En curso", "Subido por": "Subidor Demo" });
   assert.equal(series.chapters.length, 12);
   assert.deepEqual(series.chapters[0], {
-    id: "serie-demo-uno/11.5", title: "Capítulo 11.5: Extra", number: 11.5, releases: [{ id: "serie-demo-uno/11.5" }],
+    id: "serie-demo-uno/11.5", title: "Extra", number: 11.5, releases: [{ id: "serie-demo-uno/11.5" }],
   });
-  assert.equal(series.chapters.at(-1).title, "Capítulo 1: Comienzo");
+  // El título es el del sitio; la app antepone «Capítulo N» (y no lo repite si el sitio ya lo trae).
+  assert.equal(series.chapters.at(-1).title, "Comienzo");
   assert.equal(series.chapters.at(-2).title, "Capítulo 2");
 });
 

@@ -20,6 +20,24 @@
 
 ## Bitácora
 
+### 2026-11-27 · `luscious` 0.1.3: `details` sin `altTitles` (fallo en el S25)
+
+- Síntoma en el teléfono (Samsung S25): al abrir un álbum, «details() devolvió una forma fuera del contrato (SPEC §6.2): «altTitles» debe ser una lista».
+- Causa: `bin/details.js` no devolvía `altTitles`, que el validador de la app (`detailsShapeViolation`, `packages/core/src/runtimes/contractShape.ts`) exige como lista.
+- Arreglo: `altTitles: []`. La fixture del álbum no trae títulos alternativos y no se inventan campos.
+- Prueba: `luscious.test.js` ahora importa el validador compilado de la app (`RYUUNEST_REPO/packages/core/dist/runtimes/contractShape.js`) y valida `details`, `home`, `latest` y `pages`. Rojo antes del arreglo (`«altTitles» debe ser una lista`), verde después. `tools/hermes-patterns.test.mjs` en verde.
+- Paquete: `packages/luscious-0.1.3.zip` con `ryuunest-module pack` (SHA-256 `95ea35ccb2db40b6b1a73a413f6d8a5eb36f156c0b5fce7d4df2cc4e07d0d2b4`, 12 122 bytes). `index.json` actualizado con la entrada entera.
+- Sin verificar: la app en el teléfono tras instalar 0.1.3 (depende de Cloudflare en vivo, que los tests no cubren).
+
+### 2026-11-27 · `e-hentai`, `fanfox`, `hitomi`, `luscious`, `mangation` 0.1.2: fix Hermes real (`home`)
+
+- Causa real: el `await` dentro de una flecha async con parámetros desestructurados (`SECTIONS.map(async ({ id }) => …)`) devuelve `undefined` en Hermes (app). Arreglo: `for…of` secuencial dentro de una `async function`, igual que YupManga (que funciona en el teléfono). Es secuencial a propósito: el host ya serializa por dominio.
+- La 0.1.1 (solo quitar el spread de `await`) era insuficiente: en el teléfono FanFox 0.1.1 falló con «Cannot read property 'items' of undefined». Se mantiene en `packages/` como histórico, no se recomienda.
+- YupManga no se toca (su spread va dentro de un `for` y funciona en el dispositivo; se excluye del test por lista).
+- Prueba: `tools/hermes-patterns.test.mjs` (recorre `*/module.js` y `*/bin/`, falla con archivo:línea; YupManga excluido por lista).
+- Verificación: `node --test` de los 5 módulos en verde; `apprun.mjs audit-release-hermes <mod> home` → `SHAPE: ok` en los 5 (luscious → `BLOCKED` Cloudflare, esperado en Node). Pendiente: confirmar en el teléfono.
+- Paquetes regenerados con `ryuunest-module pack` y `index.json` actualizado (`sha256`/`size` del zip exacto).
+
 ### 2026-11-22 · `mangation` 0.1.0: módulo nuevo (API JSON pública + `__data.json`)
 
 - **Escalera (§6):** API Anything no tiene `mangation` (`api -- sites`). No hizo falta `learn` ni Scrapling: el sitio es SvelteKit sobre Vercel, con Cloudflare solo como CDN; `fetch` de Node sin huella recibe 200, y el HTML declara `env.API_URL = https://api.mangation.com/api` (CORS abierto a `mangation.com`). robots.txt: `Allow: /` para `*` (solo veta crawlers de IA). El sanitizador no halló inyecciones en la portada.
@@ -77,7 +95,7 @@
 
 - **Escalera (§6):** API Anything no tenía `luscious` (`ops` → «no site»). Con permiso del mantenedor se probó `learn` en local (`API_ANYTHING_LOCAL_ONLY=1`, `API_ANYTHING_HOME` en `.scrape-tmp/`): su navegador **sí pasa** Cloudflare, pero la lista llega ya pintada en el HTML (sin llamada GraphQL al cargar) y sus candidatos eran anuncios de terceros (`chaturbate.com`, `s.magsrv.com`, `poweredby.jads.co`…); no guardó operación. Se pasó a `tools/fetch.py` (curl_cffi): la API GraphQL del propio sitio responde. Scrapling no hizo falta (no se lee HTML). El sanitizador no halló inyecciones en la home.
 - **Cloudflare:** todo `*.luscious.net` salvo imágenes da 403 «Just a moment» a Node (y a cualquier cliente sin huella de navegador); curl_cffi recibe 200. Mismo caso que YupManga: el módulo usa solo `host.fetch` y, si el host no pasa, responde `BLOCKED` con detalle. **Sin verificar en el teléfono.**
-- **API:** `GET /graphql/nobatch/?operationName=…&query=…&variables=…`. `AlbumList` (30 por página, tope 1000 resultados; filtros `album_type` manga|pictures, `language_ids` `+3` = español, `genre_ids`, `search_query`; `display` `date_trending|date_newest|rating_all_time|date_last_interaction|search_score`), `AlbumGet` (álbum borrado → `errors[{code:"404"}]` dentro de `data`), `AlbumListOwnPictures` (50 por página, `display:"position"` no existe: se pide `date_newest` y se ordena por `position`). Consulta inválida → 400 con errores GraphQL (`PARSE`).
+- **API:** `GET /graphql/nobatch/?operationName=…&query=…&variables=…`. `AlbumList` (30 por página, tope 1000 resultados; filtros `album_type` manga|pictures, `language_ids` `+3` = español, `genre_ids`, `search_query`; `display` `date_trending|date_newest|rating_all_time|date_last_interaction|search_score`), `AlbumGet` (álbum borrado → `errors[{code:"404"}]` dentro de `data`), `AlbumListOwnPictures` (50 por página, `display:"position"` no existe: se pide `date_newest` y se ordena por `position`; sin sesión, cada `display` se corta en 1000 imágenes y `items_per_page` da «Anonymous users cannot change items per page», así que pasado el tope se completa con `date_oldest`). Consulta inválida → 400 con errores GraphQL (`PARSE`).
 - **Imágenes:** `url_to_original` llega `null` sin sesión; se usa la miniatura de mayor `width` (los nombres varían: `xMax` 1680 en `ah-img`, `thumb_1280`/`thumb_640` AVIF en `cdn3`; algunas páginas solo existen a 640). Descargan con Node sin huella ni `Referer`. **Sin verificar:** que el cargador de imágenes de la app decodifique AVIF (Android 12+ lo hace de serie).
 - **Modelo y buscador (§7):** id de serie = id del álbum, un capítulo con una release. `filters` = Idioma (español por defecto, «Todos»), Tipo (manga por defecto, imágenes), Orden y Género (ids de la home). Con texto y sin orden elegido ordena por relevancia. Etiquetas: las sueltas (`category: null`) van a `genres`; Artist/Parody/Character/Translator a `extra`.
 - **Manifest:** `nsfw: true`, `kinds: ["manga","comic"]`, dominio `luscious.net` (cubre `www`, `ah-img`, `cdn3`). `ryuunest-module validate` lo acepta. Prueba sin red: `node --test luscious/bin/luscious.test.js` (7). En vivo (proxy de huella): las 8 operaciones; álbum de 22 imágenes completo; imágenes y portada 200.
@@ -179,6 +197,14 @@
 - **API Anything (probado, descartado para el reto):** ver `tools/README.md`. Su navegador sin interfaz recibe 403 de Cloudflare donde curl_cffi recibe 200, bloquea los POST del flujo y solo produciría operaciones de nivel navegador. **Salvaguarda adoptada:** `tools/canary_yupmanga.py` (6/6 y 16/16 aceptados el 2026-11-20).
 - **Idea para la app (no implementada):** reto de Cloudflare con navegador nativo. Viabilidad y alcance: SPEC §894 y IDEA 2.1 ya lo prevén como v2 (WebView + cookies). Resumen del análisis en la conversación del 2026-11-20: viable para el reto de Cloudflare de página (`cf_clearance`), no para el reto de YupManga.
 
+### 2026-11-26 · `visormanga` 0.1.1: capítulos sin imágenes y CDN caído
+
+- **Capítulos viejos:** el lector carga (`h1.chapter-h1`, `div.servers-all` vacío y `var all_imgs_url = [];`) pero sin imágenes. `pages` daba `PARSE` «El capítulo no trae imágenes». Decisión del mantenedor: `NOT_FOUND` «El sitio no tiene imágenes para este capítulo», sin peticiones extra. Si la página no parece un lector, sigue siendo `PARSE`. Arreglo en `bin/pages.js`; fixture inventada `bin/fixtures/reader-empty.html` y test nuevo (10/10 en verde).
+- **CDN caído:** `v2.imgvtmo.com` (y `imgvtmo.com`) no responde: el DNS público lo resuelve a un aparcamiento de Porkbun (207.207.210.x) y el TLS falla. La app muestra «No se pudo cargar la página» en cada imagen. El módulo no puede arreglarlo: no se cambian hosts ni se inventan URLs. Abierto en BUGS.md (del sitio).
+- **Manifest:** `0.1.0` → `0.1.1`. Paquete `packages/visormanga-0.1.1.zip` con `ryuunest-module pack` (sha256 `4c376167…dc3b1`, 12586 bytes, 16 archivos). `index.json` actualizado en este mismo PR (la entrada estaba en 0.1.0).
+- **Pendiente:** confirmar que el CDN vuelve a resolver antes de dar por útil el módulo en la app; el mantenedor decide si hay un host alternativo del sitio (sin inventarlo).
+- **2026-11-27:** el CDN sigue aparcado; el mantenedor decide **retirar `visormanga` de `index.json`** hasta que vuelva. Para republicarlo: restaurar su entrada con la versión, `sha256` y `size` del último `.zip` (`packages/visormanga-0.1.1.zip`).
+
 ## Preguntas abiertas
 
 1. **Existencia del repo:** ¿está ya creado `davidluciol/RyuuNest-Models` en GitHub, o se creará al subir estos documentos? (de esto depende la URL que se anuncie en la app).
@@ -204,3 +230,10 @@
 - **Buscador (§7):** `filters` = idioma (español por defecto), orden (recientes/hoy/semana/mes/año) y tipo. `search` acepta **un** término `namespace:valor` (`female:yuri`, `artist:nombre_con_guion_bajo`, `group`, `series`, `character`, `type`) o una etiqueta suelta; prioridad término > tipo > orden. **No hay búsqueda por título** (el sitio la resuelve con un índice B-tree propio) ni combinación de varios términos (habría que descargar listas enteras de hasta ~16 MB). Una etiqueta inexistente devuelve vacío.
 - **Manifest:** `nsfw: true`, `kinds: ["manga"]`, dominios `hitomi.la` y `gold-usergeneratedcontent.net` (cubre `ltn`, `w1/w2`, `atn/btn`). Prueba sin red: `node --test hitomi/bin/hitomi.test.js`. Comprobado en vivo: `latest`, `popular`, `search female:yuri`, `details` y `pages` (12 páginas); 3 imágenes y 1 portada descargan como WebP real.
 - **Pendiente:** `index.json` en PR aparte (zip `packages/hitomi-0.1.0.zip`, sha256 `6e1e7d56…244d`, 10661 bytes); PR del host en el repo principal; recalcular hash si se toca algo del módulo.
+
+### 2026-11-26 · `zonatmo` 0.3.1: ficha rediseñada
+
+- **Causa:** `zonatmo.org` rehízo la cabecera de la ficha y `SELECTORS.details.title` (`h1.element-title`) ya no existía: `details` fallaba con `PARSE`. Popular/latest/search no cambiaron.
+- **Selectores nuevos (`bin/config.js`):** título `h1.zt-hd__title`; portada `div.zt-hd__cover img`; sinopsis `p.zt-hd__syn`; géneros `a.zt-hd__genre`; estado `span.zt-hd__state`; demografía `p.zt-hd__kicker span:not(.zt-hd__state)`; títulos alternos `details.zt-hd__alts summary span, … li`; cifras (puntuación, capítulos, visitas) `ul.zt-hd__stats li` con `b` + `span` (las visitas exactas en el `title` de `b`). Sin cambios: capítulos (`li.upload-link`, releases con `/view_uploads/<id>`), relacionados (`div.rel-card`) y lector (`img.reader-image`, `#chapterSelect option[selected]`).
+- **Pruebas:** fixtures inventadas `bin/fixtures/details.html` y `reader.html` + test nuevo. En vivo (Node, sin proxy): popular 24; details+pages de 3 series (muchos capítulos: One Piece 1243; oneshot; una media) con la primera imagen 200 con las cabeceras de `ImageRef`.
+- **Paquete:** `packages/zonatmo-0.3.1.zip`, sha256 `9a905b48…ce721`, 22383 bytes (`ryuunest-module pack`). Sin verificar: el respaldo espejo en vivo (cubierto solo por fixtures) y la instalación desde la app.

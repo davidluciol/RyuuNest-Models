@@ -2,12 +2,12 @@
   "format": "ryuunest-repo",
   "version": 1,
   "name": "RyuuNest-Models",
-  "updatedAt": "2026-11-23T04:09:49.000Z",
+  "updatedAt": "2026-11-27T05:07:57.217Z",
   "modules": [
     {
       "id": "zonatmo",
       "name": "ZonaTMO",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "apiVersion": 1,
       "runtime": "script",
       "kinds": ["manga", "manhwa", "manhua", "comic"],
@@ -16,9 +16,9 @@
       "permissions": {
         "domains": ["zonatmo.org", "storage.zonatmo.org", "storage2.zonatmo.org", "zonatmo.to", "cdn.zonatmo.to"]
       },
-      "package": "packages/zonatmo-0.3.0.zip",
-      "sha256": "4e1c35b0b64c225463b0e3847d9777956aea9e7d8c88043aefb6a992b426d787",
-      "size": 15422
+      "package": "packages/zonatmo-0.3.1.zip",
+      "sha256": "9a905b484fefe4c1c895e3496f012d140b31ad013322eb64b9389d227dece721",
+      "size": 22383
     },
     {
       "id": "yupmanga",
@@ -55,7 +55,7 @@
     {
       "id": "hitomi",
       "name": "Hitomi.la",
-      "version": "0.1.0",
+      "version": "0.1.2",
       "apiVersion": 1,
       "runtime": "script",
       "kinds": ["manga"],
@@ -64,14 +64,14 @@
       "permissions": {
         "domains": ["hitomi.la", "gold-usergeneratedcontent.net"]
       },
-      "package": "packages/hitomi-0.1.0.zip",
-      "sha256": "6e1e7d56a0ec392e8214317072021354105f53036708cddc02aa9850d695244d",
-      "size": 10661
+      "package": "packages/hitomi-0.1.2.zip",
+      "sha256": "6fdb350fd6e11534b82cae2002ea45a4ca0f6ad380643961aeaa4b7f92152eec",
+      "size": 10827
     },
     {
       "id": "luscious",
       "name": "Luscious",
-      "version": "0.1.0",
+      "version": "0.1.4",
       "apiVersion": 1,
       "runtime": "script",
       "kinds": ["manga", "comic"],
@@ -80,14 +80,14 @@
       "permissions": {
         "domains": ["luscious.net"]
       },
-      "package": "packages/luscious-0.1.0.zip",
-      "sha256": "dc0b72dbe8354145e16e97cf473dc87fd5b2ccfa4b5efdfe78631633e3cd16eb",
-      "size": 11757
+      "package": "packages/luscious-0.1.4.zip",
+      "sha256": "63aa9a29cd1bb7cfcc5b603804cf25167e929d9fe4408bc79ad2e4c8409f4c40",
+      "size": 12886
     },
     {
       "id": "e-hentai",
       "name": "E-Hentai",
-      "version": "0.1.0",
+      "version": "0.1.2",
       "apiVersion": 1,
       "runtime": "script",
       "kinds": ["manga"],
@@ -96,14 +96,14 @@
       "permissions": {
         "domains": ["e-hentai.org", "ehgt.org", "hath.network"]
       },
-      "package": "packages/e-hentai-0.1.0.zip",
-      "sha256": "92269f3d0de4593b3043108a2efe8acadbfae8ae9a10a964c374a68ab9f2f901",
-      "size": 14260
+      "package": "packages/e-hentai-0.1.2.zip",
+      "sha256": "1e98e3455683f7d6b54689066e2786074ab376dc55ef6db544fbce07e90d8036",
+      "size": 14342
     },
     {
       "id": "fanfox",
       "name": "FanFox",
-      "version": "0.1.0",
+      "version": "0.1.2",
       "apiVersion": 1,
       "runtime": "script",
       "kinds": ["manga", "manhwa", "manhua"],
@@ -112,30 +112,14 @@
       "permissions": {
         "domains": ["fanfox.net", "mangafox.me", "mfcdn.net"]
       },
-      "package": "packages/fanfox-0.1.0.zip",
-      "sha256": "7b57fea8d14d76503c851da00c7017e796def12ac199b0223e24c89fba7844e5",
-      "size": 16130
-    },
-    {
-      "id": "visormanga",
-      "name": "VisorManga",
-      "version": "0.1.0",
-      "apiVersion": 1,
-      "runtime": "script",
-      "kinds": ["manga", "manhwa"],
-      "lang": "es",
-      "nsfw": true,
-      "permissions": {
-        "domains": ["visormanga.com", "imgvtmo.com"]
-      },
-      "package": "packages/visormanga-0.1.0.zip",
-      "sha256": "ba7c4b51c8ec2c17779b60b11e4b92f3f4610f862d17bb5c3aacf3ced4d86c2b",
-      "size": 11981
+      "package": "packages/fanfox-0.1.2.zip",
+      "sha256": "fe886ce150c56780d8680a69dabeb64a1bfc13a0fb016cf3f5bc0bda810f6b63",
+      "size": 16149
     },
     {
       "id": "mangation",
       "name": "Mangation",
-      "version": "0.1.0",
+      "version": "0.1.3",
       "apiVersion": 1,
       "runtime": "script",
       "kinds": ["manga", "manhwa", "manhua"],
@@ -144,9 +128,9 @@
       "permissions": {
         "domains": ["mangation.com"]
       },
-      "package": "packages/mangation-0.1.0.zip",
-      "sha256": "26989a75e30fdbec2196b20fc020662f912c6af2590fc477fa401128eeedfad4",
-      "size": 16126
+      "package": "packages/mangation-0.1.3.zip",
+      "sha256": "2adc5411cbfcf31593024bc3051fd20a0013f543234e3fbf601622077dcd4829",
+      "size": 16335
     }
   ]
 }

@@ -116,9 +116,11 @@ export function list(host, sectionId, page) {
 }
 
 export async function home(host) {
-  const sections = await Promise.all(
-    SECTIONS.map(async ({ id, title, load }) => ({ id, title, kind: "list", ...(await load(host, 1)) })),
-  );
+  const sections = [];
+  for (const section of SECTIONS) {
+    const page = await section.load(host, 1);
+    sections.push({ id: section.id, title: section.title, kind: "list", items: page.items, hasNext: page.hasNext });
+  }
   return { sections };
 }
 

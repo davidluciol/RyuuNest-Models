@@ -111,7 +111,8 @@ export async function search(host, query, page, filters = {}) {
   let found = (await apiJson(host, `/public/mangas?${new URLSearchParams({ q: text })}`))?.data ?? [];
   if (found.length >= SEARCH_LIMIT) {
     const seen = new Set(found.map((m) => m.slug));
-    found = [...found, ...(await scanLibrary(host, text)).filter((m) => !seen.has(m.slug) && seen.add(m.slug))];
+    const extra = await scanLibrary(host, text);
+    found = found.concat(extra.filter((m) => !seen.has(m.slug) && seen.add(m.slug)));
   }
   return { items: cards(found.filter((m) => matches(m, filters))), hasNext: false };
 }
@@ -127,9 +128,11 @@ export async function list(host, sectionId, page) {
 }
 
 export async function home(host) {
-  const sections = await Promise.all(
-    SECTIONS.map(async ({ id, title, load }) => ({ id, title, kind: "list", ...(await load(host, 1)) })),
-  );
+  const sections = [];
+  for (const section of SECTIONS) {
+    const page = await section.load(host, 1);
+    sections.push({ id: section.id, title: section.title, kind: "list", items: page.items, hasNext: page.hasNext });
+  }
   return { sections };
 }
 

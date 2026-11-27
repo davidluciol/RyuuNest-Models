@@ -1,6 +1,6 @@
 /** Lector: imágenes del álbum por `AlbumListOwnPictures` (50 por página), en orden de posición. */
 
-import { MAX_PICTURE_PAGES } from "./config.js";
+import { PICTURE_LIST_CAP, PICTURE_PAGES_PER_ORDER } from "./config.js";
 import { requireId } from "./details.js";
 import { fail } from "./utils/errors.js";
 import { graphql, imageHeaders } from "./utils/http.js";
@@ -11,16 +11,27 @@ function urlOf(picture) {
   return picture.url_to_original ?? widest?.url;
 }
 
+/** Añade a `seen` (por id) las imágenes en orden `display`; con `untilOverlap` para al toparse con una ya vista. */
+async function collect(host, id, display, seen, untilOverlap) {
+  for (let page = 1; page <= PICTURE_PAGES_PER_ORDER; page += 1) {
+    const input = { filters: [{ name: "album_id", value: id }], display, page };
+    const list = (await graphql(host, "AlbumListOwnPictures", { input })).picture?.list;
+    let overlap = false;
+    for (const picture of list?.items ?? []) {
+      if (seen.has(picture.id)) overlap = true;
+      else seen.set(picture.id, picture);
+    }
+    if ((untilOverlap && overlap) || list?.info?.has_next_page !== true) return;
+  }
+}
+
 export async function pages(host, chapterId) {
   const id = requireId(chapterId);
-  const pictures = [];
-  for (let page = 1; page <= MAX_PICTURE_PAGES; page += 1) {
-    const input = { filters: [{ name: "album_id", value: id }], display: "date_newest", page };
-    const list = (await graphql(host, "AlbumListOwnPictures", { input })).picture?.list;
-    pictures.push(...(list?.items ?? []));
-    if (list?.info?.has_next_page !== true) break;
-  }
-  const images = pictures
+  const seen = new Map();
+  await collect(host, id, "date_newest", seen, false);
+  // El API anónimo corta cada orden en 1000 imágenes: el resto (hasta 2000) sale del orden contrario.
+  if (seen.size >= PICTURE_LIST_CAP) await collect(host, id, "date_oldest", seen, true);
+  const images = [...seen.values()]
     .sort((a, b) => Number(a.position) - Number(b.position))
     .map(urlOf)
     .filter(Boolean)

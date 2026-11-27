@@ -32,6 +32,8 @@ function makeHost(requests, { orgDown = false } = {}) {
         : url.includes("/chapters?") ? fixture("mirror-chapters.json")
         : url.includes("/single/manga/serie-espejo-uno/") ? fixture("mirror-chapter.json")
         : url.includes("/single/manga/") ? fixture("mirror-single.json")
+        : url.includes("/library/") ? fixture("details.html")
+        : url.includes("/view_uploads/") ? fixture("reader.html")
         : fixture("library.html");
       return { status: 200, url, text: async () => body };
     },
@@ -90,6 +92,29 @@ test("zonatmo: si el sitio principal falla, responde el espejo", { skip: !repo }
     "https://cdn.zonatmo.to/manga/llaveManga_x_1/llaveCapitulo_x_2/page_0002.webp",
   ]);
   await assert.rejects(mod.pages("x", "/manga/9101/../x"), { code: "NOT_FOUND" });
+});
+
+test("zonatmo: ficha y lector del sitio principal (rediseño zt-hd)", { skip: !repo }, async () => {
+  const mod = create(makeHost([]));
+  const info = await mod.details("/library/manhwa/9001/serie-falsa-uno");
+  assert.equal(info.title, "Serie Falsa Uno");
+  assert.equal(info.cover.url, "https://zonatmo.org/storage/covers/9001_1.webp?v=2");
+  assert.equal(info.description, "Sinopsis inventada para la prueba.");
+  assert.deepEqual(info.genres, ["Drama", "Romance"]);
+  assert.equal(info.status, "ongoing");
+  assert.deepEqual(info.altTitles, ["Falsa Series One", "Serie Falsa 1"]);
+  assert.deepEqual(info.extra, {
+    "Puntuación": "8.5", "Capítulos": "2", "Visitas": "1,234", "Demografía": "Seinen", "Autor": "Autora Falsa",
+  });
+  assert.deepEqual(info.chapters.map((c) => [c.title, c.number, c.releases.length]), [
+    ["Capítulo 2", 2, 2], ["Capítulo 1", 1, 1],
+  ]);
+  assert.deepEqual(info.chapters[0].releases[0], { id: "/view_uploads/9002", group: "Scan Uno", publishedAt: "2026-06-22" });
+  assert.equal(info.related[0].id, "/library/manga/9002/serie-falsa-dos");
+
+  const { title, images } = await mod.pages("Capítulo 2", "/view_uploads/9002");
+  assert.equal(title, "Cap. 2");
+  assert.equal(images.length, 2);
 });
 
 test("zonatmo: un 404 del sitio principal no salta al espejo", { skip: !repo }, async () => {

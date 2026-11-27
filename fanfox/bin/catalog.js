@@ -69,9 +69,11 @@ export const popular = (host, page) => list(host, "popular", page);
 export const latest = (host, page) => list(host, "latest", page);
 
 export async function home(host) {
-  const sections = await Promise.all(
-    SECTIONS.map(async ({ id, title, sort }) => ({ id, title, kind: "list", ...(await directory(host, sort, 1)) })),
-  );
+  const sections = [];
+  for (const section of SECTIONS) {
+    const page = await directory(host, section.sort, 1);
+    sections.push({ id: section.id, title: section.title, kind: "list", items: page.items, hasNext: page.hasNext });
+  }
   return { sections };
 }
 

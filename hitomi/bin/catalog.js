@@ -68,14 +68,11 @@ export const latest = (host, number) => page(host, "", number, { order: "new" })
 export const search = (host, query, number, filters) => page(host, query, number, filters ?? {});
 
 export async function home(host) {
-  const sections = await Promise.all(
-    SECTIONS.map(async ({ value, label }) => ({
-      id: value,
-      title: label,
-      kind: "list",
-      ...(await page(host, "", 1, { order: value })),
-    })),
-  );
+  const sections = [];
+  for (const section of SECTIONS) {
+    const result = await page(host, "", 1, { order: section.value });
+    sections.push({ id: section.value, title: section.label, kind: "list", items: result.items, hasNext: result.hasNext });
+  }
   return { sections };
 }
 

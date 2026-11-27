@@ -16,6 +16,7 @@
 - 2026-11-13 · filters · los filtros del sitio principal solo se probaron con HTTP desde Node (24 tarjetas y `type`/`genders[]`/`exclude_genders[]` aceptados), no dentro de la app; el filtro «Ocultar +18» excluye los géneros +18, +19, Erótica, Adulto y Smut, no los marcados solo con `book-meta-mature` · abierto.
 - 2026-11-13 · sitio hostil (menor) · el HTML de `zonatmo.to`/`.net` incluye en `siteConfig.routes.pages` rutas de spam en ruso; no es texto dirigido a una IA, el módulo no lo lee · anotado.
 - 2026-11-13 · manifest · se quita `nsfw: true` por petición del mantenedor (hay más series SFW que +18); las listas siguen mostrando +18 salvo con el filtro «Contenido» · decisión, no bug.
+- 2026-11-26 · details · `PARSE` «La página no es una ficha de serie» en cualquier serie de `zonatmo.org` · el sitio rediseñó la cabecera de la ficha (`h1.element-title` → `h1.zt-hd__title`, etc.); capítulos, lector y relacionados no cambiaron · resuelto en 0.3.1.
 
 ## yupmanga
 
@@ -42,12 +43,17 @@
 
 - 2026-11-22 · todas · `host.fetch` sin huella de navegador recibe 403 «Just a moment» de Cloudflare en la API (`www.luscious.net/graphql/nobatch/`) · causa: WAF por huella TLS · abierto (sin verificar en el teléfono; se tipa `BLOCKED`).
 - 2026-11-22 · pages/portadas · parte de las imágenes son AVIF (`cdn3.luscious.net`) · causa: el sitio las sirve así · abierto (sin verificar que la app las decodifique).
+- 2026-11-27 · home · en Hermes `PARSE «sections[0]: «items» debe ser una lista»` (y en FanFox «Cannot read property 'items' of undefined») · causa real: el `await` dentro de una flecha async con parámetros desestructurados devuelve `undefined` en Hermes; el arreglo 0.1.1 (quitar el spread) NO lo resolvía · resuelto en 0.1.2 (bucle `for…of` secuencial); pendiente de confirmar en el teléfono.
+- 2026-11-27 · details · en el S25, al abrir un álbum: «details() devolvió una forma fuera del contrato (SPEC §6.2): «altTitles» debe ser una lista» · causa: `details.js` no devolvía `altTitles` · resuelto en 0.1.3 (`altTitles: []`; test con el validador de la app).
+- 2026-11-27 · pages · `TIMEOUT` en `AlbumListOwnPictures` en el S25 (Expo Go, 2 de 2) · no se reproduce el 2026-11-27 (respuesta en 48 ms; desde el PC 240 ms por página): conexión muerta de Expo Go sin el OkHttp con ping de G6, no el módulo · cerrado (verificar con el APK).
+- 2026-11-27 · pages · los álbumes de más de 1000 imágenes se cortaban en 1000 (el API anónimo corta cada `display` en 20 páginas y no deja cambiar `items_per_page`) · resuelto en 0.1.4: si `date_newest` llega al tope, se completa con `date_oldest` hasta solaparse (hasta 2000; álbum 326430: 1321/1321 en 27 peticiones).
 
 ## fanfox
 
 - 2026-11-22 · pages/portadas · las URL llevan `token` y `ttl` (caducan en ~1 día) y dan 403 sin `Referer: https://fanfox.net/` · causa: diseño del sitio · abierto (la app no debe cachear las URL mucho tiempo y debe enviar los `headers` de `ImageRef`).
 - 2026-11-22 · details · una serie inexistente redirige a `/search`; el módulo da `NOT_FOUND` por la URL final o por `Location`. Si la app no rellena `HttpResponse.url` (P-74) y sigue la redirección, sale `PARSE` en vez de `NOT_FOUND` · abierto (del lado de la app).
 - 2026-11-22 · search · el filtro de género admite uno solo: con varios (`genres=1,12`), el servidor ignora alguno · causa: límite del sitio · abierto (el filtro es `select`).
+- 2026-11-27 · home · en Hermes `PARSE «sections[0]: «items» debe ser una lista»` (y en FanFox «Cannot read property 'items' of undefined») · causa real: el `await` dentro de una flecha async con parámetros desestructurados devuelve `undefined` en Hermes; el arreglo 0.1.1 (quitar el spread) NO lo resolvía · resuelto en 0.1.2 (bucle `for…of` secuencial); pendiente de confirmar en el teléfono.
 
 ### Posibles bugs (fanfox)
 
@@ -60,6 +66,11 @@
 - 2026-11-22 · todas · veto temporal de IP («temporarily banned») por exceso de cargas; se tipa `RATE_LIMITED` · causa: límite del sitio · abierto (no se alcanzó en la prueba del 2026-11-22: 544 peticiones en ~10 min, de ellas 144 seguidas al dominio principal a ~3,7/s; ver NOTES).
 - 2026-11-22 · pages · al agotar la cuota de imágenes el sitio sirve `509.gif`; se tipa `RATE_LIMITED` · causa: límite del sitio · abierto.
 - 2026-11-22 · pages · las URL H@H (`*.hath.network`, a veces con puerto) caducan (`keystamp`) · causa: diseño del sitio · abierto (la app no debe cachear las URL mucho tiempo; sin verificar puertos en el visor).
+- 2026-11-27 · home · en Hermes `PARSE «sections[0]: «items» debe ser una lista»` (y en FanFox «Cannot read property 'items' of undefined») · causa real: el `await` dentro de una flecha async con parámetros desestructurados devuelve `undefined` en Hermes; el arreglo 0.1.1 (quitar el spread) NO lo resolvía · resuelto en 0.1.2 (bucle `for…of` secuencial); pendiente de confirmar en el teléfono.
+
+## hitomi
+
+- 2026-11-27 · home · en Hermes `PARSE «sections[0]: «items» debe ser una lista»` (y en FanFox «Cannot read property 'items' of undefined») · causa real: el `await` dentro de una flecha async con parámetros desestructurados devuelve `undefined` en Hermes; el arreglo 0.1.1 (quitar el spread) NO lo resolvía · resuelto en 0.1.2 (bucle `for…of` secuencial); pendiente de confirmar en el teléfono.
 
 ## mangation
 
@@ -67,8 +78,15 @@
 - 2026-11-22 · details/pages/popular/géneros · se leen de `__data.json`, la ruta interna de SvelteKit (formato devalue), no de la API pública · causa: el sitio no expone ficha ni lector en la API · abierto (un despliegue puede cambiar la forma; las pruebas con fixtures no lo detectan).
 - 2026-11-22 · latest · «Nuevos» ordena por alta de la serie, no por capítulo actualizado · causa: la API solo admite `sort=newest|oldest` · abierto.
 - 2026-11-22 · search · el filtro de género no se combina con tipo/demografía/estado/orden (`/genre/<slug>` no los acepta) · causa: límite del sitio · abierto (+18 sí se aplica en local).
+- 2026-11-27 · home · en Hermes `PARSE «sections[0]: «items» debe ser una lista»` · causa real: el `await` dentro de una flecha async con parámetros desestructurados devuelve `undefined` en Hermes (la 0.1.1 solo quitó el spread y no bastó) · resuelto en 0.1.2 (bucle `for…of` secuencial); la búsqueda de 0.1.1 (`const extra = await …`) se mantiene. Pendiente de confirmar en el teléfono.
 
 ### Posibles bugs (mangation)
 
 - 2026-11-22 · listas · las novelas (`type: novela`) se excluyen sin verificar: hoy no hay ninguna en el catálogo · posible bug (si aparecen con imágenes, quitar el filtro `isComic`).
 - 2026-11-22 · todas · tras ~45 peticiones seguidas el DNS local dejó de resolver el dominio y la conexión por IP falló durante un rato · causa: sin determinar (red local o corte del sitio) · posible bug.
+- 2026-11-27 · details · el capítulo salía «Capítulo 103: Capítulo 103.00» porque el módulo anteponía la numeración y la app también · resuelto en 0.1.3 (el título es el del sitio; la app antepone «Capítulo N» y no lo repite si ya viene numerado).
+
+## visormanga
+
+- 2026-11-26 · pages · capítulos viejos con el lector cargado pero sin imágenes (`servers-all` vacío, `all_imgs_url = []`) daban `PARSE` «El capítulo no trae imágenes» · causa: el sitio no tiene imágenes para esos capítulos · **resuelto** en 0.1.1: `NOT_FOUND` «El sitio no tiene imágenes para este capítulo».
+- 2026-11-26 · pages/portadas · el CDN de imágenes `v2.imgvtmo.com` (todo `imgvtmo.com`) está caído para todos: el DNS público lo resuelve a un aparcamiento de Porkbun (207.207.210.x) y el TLS falla; la app muestra «No se pudo cargar la página» en cada imagen · causa: dominio del sitio aparcado · **abierto, del sitio** (el módulo no cambia hosts ni inventa URLs; solo se documenta). 2026-11-27: sigue caído; **retirado de `index.json`** por decisión del mantenedor (código y paquetes se quedan en el repo); se vuelve a publicar cuando el CDN regrese.
