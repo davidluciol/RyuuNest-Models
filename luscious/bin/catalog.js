@@ -64,12 +64,10 @@ export const list = (host, sectionId, page) => albumPage(host, "", page, { order
 
 export async function home(host) {
   const sections = await Promise.all(
-    SECTIONS.map(async ({ value, label }) => ({
-      id: value,
-      title: label,
-      kind: "list",
-      ...(await list(host, value, 1)),
-    })),
+    SECTIONS.map(async ({ value, label }) => {
+      const result = await list(host, value, 1);
+      return { id: value, title: label, kind: "list", items: result.items, hasNext: result.hasNext };
+    }),
   );
   return { sections };
 }

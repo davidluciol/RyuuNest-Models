@@ -69,12 +69,10 @@ export const search = (host, query, number, filters) => page(host, query, number
 
 export async function home(host) {
   const sections = await Promise.all(
-    SECTIONS.map(async ({ value, label }) => ({
-      id: value,
-      title: label,
-      kind: "list",
-      ...(await page(host, "", 1, { order: value })),
-    })),
+    SECTIONS.map(async ({ value, label }) => {
+      const result = await page(host, "", 1, { order: value });
+      return { id: value, title: label, kind: "list", items: result.items, hasNext: result.hasNext };
+    }),
   );
   return { sections };
 }

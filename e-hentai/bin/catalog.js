@@ -117,7 +117,11 @@ export function list(host, sectionId, page) {
 
 export async function home(host) {
   const sections = await Promise.all(
-    SECTIONS.map(async ({ id, title, load }) => ({ id, title, kind: "list", ...(await load(host, 1)) })),
+    SECTIONS.map(async ({ id, title, load }) => {
+      // Hermes pierde las props de un spread de await dentro de un literal: asignar antes.
+      const page = await load(host, 1);
+      return { id, title, kind: "list", items: page.items, hasNext: page.hasNext };
+    }),
   );
   return { sections };
 }
