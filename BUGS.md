@@ -81,3 +81,8 @@
 
 - 2026-11-22 · listas · las novelas (`type: novela`) se excluyen sin verificar: hoy no hay ninguna en el catálogo · posible bug (si aparecen con imágenes, quitar el filtro `isComic`).
 - 2026-11-22 · todas · tras ~45 peticiones seguidas el DNS local dejó de resolver el dominio y la conexión por IP falló durante un rato · causa: sin determinar (red local o corte del sitio) · posible bug.
+
+## visormanga
+
+- 2026-11-26 · pages · capítulos viejos con el lector cargado pero sin imágenes (`servers-all` vacío, `all_imgs_url = []`) daban `PARSE` «El capítulo no trae imágenes» · causa: el sitio no tiene imágenes para esos capítulos · **resuelto** en 0.1.1: `NOT_FOUND` «El sitio no tiene imágenes para este capítulo».
+- 2026-11-26 · pages/portadas · el CDN de imágenes `v2.imgvtmo.com` (todo `imgvtmo.com`) está caído para todos: el DNS público lo resuelve a un aparcamiento de Porkbun (207.207.210.x) y el TLS falla; la app muestra «No se pudo cargar la página» en cada imagen · causa: dominio del sitio aparcado · **abierto, del sitio** (el módulo no cambia hosts ni inventa URLs; solo se documenta).
