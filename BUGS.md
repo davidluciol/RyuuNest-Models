@@ -16,6 +16,7 @@
 - 2026-11-13 · filters · los filtros del sitio principal solo se probaron con HTTP desde Node (24 tarjetas y `type`/`genders[]`/`exclude_genders[]` aceptados), no dentro de la app; el filtro «Ocultar +18» excluye los géneros +18, +19, Erótica, Adulto y Smut, no los marcados solo con `book-meta-mature` · abierto.
 - 2026-11-13 · sitio hostil (menor) · el HTML de `zonatmo.to`/`.net` incluye en `siteConfig.routes.pages` rutas de spam en ruso; no es texto dirigido a una IA, el módulo no lo lee · anotado.
 - 2026-11-13 · manifest · se quita `nsfw: true` por petición del mantenedor (hay más series SFW que +18); las listas siguen mostrando +18 salvo con el filtro «Contenido» · decisión, no bug.
+- 2026-11-26 · details · `PARSE` «La página no es una ficha de serie» en cualquier serie de `zonatmo.org` · el sitio rediseñó la cabecera de la ficha (`h1.element-title` → `h1.zt-hd__title`, etc.); capítulos, lector y relacionados no cambiaron · resuelto en 0.3.1.
 
 ## yupmanga
 

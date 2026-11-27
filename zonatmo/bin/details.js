@@ -2,16 +2,16 @@
 
 import {
   BASE_URL,
-  CHAPTERS_META,
   CHAPTER_NUMBER,
   CSS_URL,
   SELECTORS,
-  VISITS_META,
+  STAT_LABELS,
+  VISITS_TITLE,
 } from "./config.js";
 import { fail } from "./utils/errors.js";
 import { loadDocument } from "./utils/http.js";
 import { isoDate, kindOf, statusOf } from "./utils/normalize.js";
-import { attrOf, collapse, compact, textList, textOf } from "./utils/text.js";
+import { attrOf, compact, textList, textOf } from "./utils/text.js";
 import { imageRef, relativePath, requirePath } from "./utils/url.js";
 
 function chapterNumber(raw, title) {
@@ -66,42 +66,26 @@ function chaptersOf(document, url) {
   return chapters;
 }
 
-function synonymsOf(document) {
-  const raw = textOf(document, SELECTORS.details.synonyms);
-  const seen = new Set();
-  const titles = [];
-  for (const title of raw.split(";")) {
-    const value = title.trim();
-    if (value !== "" && !seen.has(value)) {
-      seen.add(value);
-      titles.push(value);
-    }
-  }
-  return titles;
+function synonymsOf(document, title) {
+  return textList(document, SELECTORS.details.synonyms).filter((alt) => alt !== title);
 }
 
-/** Datos sueltos de la cabecera: puntuación, demografía, conteos y autores. */
+/** Datos sueltos de la cabecera: cifras (`ul.zt-hd__stats`), demografía y autores. */
 function extraOf(document) {
   const extra = {};
-  const score = textOf(document, SELECTORS.details.score);
-  if (score !== "") {
-    extra["Puntuación"] = score;
-  }
-  for (const node of document.select(SELECTORS.details.meta)) {
-    const text = collapse(node.text());
-    const chapters = CHAPTERS_META.exec(text);
-    if (chapters !== null) {
-      extra["Capítulos"] = chapters[1];
-      continue;
-    }
-    const visits = VISITS_META.exec(text);
-    if (visits !== null) {
-      extra["Visitas"] = visits[1];
+  for (const item of document.select(SELECTORS.details.stats)) {
+    const label = textOf(item, SELECTORS.details.statLabel);
+    const key = STAT_LABELS.find(([pattern]) => pattern.test(label))?.[1];
+    const value =
+      VISITS_TITLE.exec(attrOf(item, SELECTORS.details.statValue, "title"))?.[1] ??
+      textOf(item, SELECTORS.details.statValue);
+    if (key !== undefined && value !== "") {
+      extra[key] = value;
     }
   }
   const demography = textOf(document, SELECTORS.details.demography);
   if (demography !== "") {
-    extra["Demografía"] = demography;
+    extra["Demografía"] = demography[0].toUpperCase() + demography.slice(1);
   }
   const authors = textList(document, SELECTORS.details.authors);
   if (authors.length > 0) {
@@ -172,7 +156,7 @@ export async function details(host, seriesId) {
     ...(description === "" ? {} : { description }),
     genres: textList(document, SELECTORS.details.genres),
     status: statusOf(status),
-    altTitles: synonymsOf(document),
+    altTitles: synonymsOf(document, title),
     extra: extraOf(document),
     chapters: chaptersOf(document, url),
     related: relatedOf(document),
