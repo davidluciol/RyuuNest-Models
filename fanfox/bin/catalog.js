@@ -70,7 +70,10 @@ export const latest = (host, page) => list(host, "latest", page);
 
 export async function home(host) {
   const sections = await Promise.all(
-    SECTIONS.map(async ({ id, title, sort }) => ({ id, title, kind: "list", ...(await directory(host, sort, 1)) })),
+    SECTIONS.map(async ({ id, title, sort }) => {
+      const page = await directory(host, sort, 1);
+      return { id, title, kind: "list", items: page.items, hasNext: page.hasNext };
+    }),
   );
   return { sections };
 }
