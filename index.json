@@ -117,22 +117,6 @@
       "size": 16149
     },
     {
-      "id": "visormanga",
-      "name": "VisorManga",
-      "version": "0.1.1",
-      "apiVersion": 1,
-      "runtime": "script",
-      "kinds": ["manga", "manhwa"],
-      "lang": "es",
-      "nsfw": true,
-      "permissions": {
-        "domains": ["visormanga.com", "imgvtmo.com"]
-      },
-      "package": "packages/visormanga-0.1.1.zip",
-      "sha256": "4c3761677721dc73aeae9be51a4cda3b73c911f23a6a5ab828bc04ee218dc3b1",
-      "size": 12586
-    },
-    {
       "id": "mangation",
       "name": "Mangation",
       "version": "0.1.2",

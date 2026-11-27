@@ -203,6 +203,7 @@
 - **CDN caído:** `v2.imgvtmo.com` (y `imgvtmo.com`) no responde: el DNS público lo resuelve a un aparcamiento de Porkbun (207.207.210.x) y el TLS falla. La app muestra «No se pudo cargar la página» en cada imagen. El módulo no puede arreglarlo: no se cambian hosts ni se inventan URLs. Abierto en BUGS.md (del sitio).
 - **Manifest:** `0.1.0` → `0.1.1`. Paquete `packages/visormanga-0.1.1.zip` con `ryuunest-module pack` (sha256 `4c376167…dc3b1`, 12586 bytes, 16 archivos). `index.json` actualizado en este mismo PR (la entrada estaba en 0.1.0).
 - **Pendiente:** confirmar que el CDN vuelve a resolver antes de dar por útil el módulo en la app; el mantenedor decide si hay un host alternativo del sitio (sin inventarlo).
+- **2026-11-27:** el CDN sigue aparcado; el mantenedor decide **retirar `visormanga` de `index.json`** hasta que vuelva. Para republicarlo: restaurar su entrada con la versión, `sha256` y `size` del último `.zip` (`packages/visormanga-0.1.1.zip`).
 
 ## Preguntas abiertas
 
