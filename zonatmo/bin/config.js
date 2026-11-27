@@ -85,16 +85,16 @@ export const SELECTORS = {
   },
   nextPage: 'a[rel="next"]',
   details: {
-    title: "h1.element-title",
-    kind: "h1.book-type",
-    cover: "img.book-thumbnail",
-    score: "div.element-image div.score span",
-    demography: "div.element-image div.demography",
-    description: "p.element-description",
-    genres: "h6 a.badge",
-    status: "span.book-status",
-    synonyms: "div.synonyms-wrap",
-    meta: "div.manga-meta-bar span",
+    title: "h1.zt-hd__title",
+    cover: "div.zt-hd__cover img",
+    demography: "p.zt-hd__kicker span:not(.zt-hd__state)",
+    description: "p.zt-hd__syn",
+    genres: "a.zt-hd__genre",
+    status: "span.zt-hd__state",
+    synonyms: "details.zt-hd__alts summary span, details.zt-hd__alts li",
+    stats: "ul.zt-hd__stats li",
+    statValue: "b",
+    statLabel: "span",
     authors: 'a[href*="filter_by=author"]',
     chapters: "li.upload-link",
     chapterTitle: "span.chapter-number",
@@ -119,6 +119,12 @@ export const SELECTORS = {
 export const CHALLENGE_TITLE = /just a moment|attention required|checking your browser/iu;
 export const CHAPTER_NUMBER = /^cap[ií]tulo\s+(\d+(?:[.,]\d+)?)/iu;
 export const DISPLAY_DATE = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/u;
-export const CHAPTERS_META = /^([\d.,]+)\s+cap[ií]tulos?$/iu;
-export const VISITS_META = /^([\d.,]+)\s+visitas?$/iu;
+/** Etiquetas de `ul.zt-hd__stats` → clave de `extra`. */
+export const STAT_LABELS = [
+  [/^puntuaci[oó]n$/iu, "Puntuación"],
+  [/^cap[ií]tulos?$/iu, "Capítulos"],
+  [/^visitas?$/iu, "Visitas"],
+];
+/** El `title` de la cifra de visitas trae el número exacto: `624,294 visitas`. */
+export const VISITS_TITLE = /^([\d.,]+)\s+visitas?$/iu;
 export const CSS_URL = /url\(\s*(['"]?)(.*?)\1\s*\)/u;
