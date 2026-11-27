@@ -20,6 +20,15 @@
 
 ## Bitácora
 
+### 2026-11-27 · `luscious` 0.1.3: `details` sin `altTitles` (fallo en el S25)
+
+- Síntoma en el teléfono (Samsung S25): al abrir un álbum, «details() devolvió una forma fuera del contrato (SPEC §6.2): «altTitles» debe ser una lista».
+- Causa: `bin/details.js` no devolvía `altTitles`, que el validador de la app (`detailsShapeViolation`, `packages/core/src/runtimes/contractShape.ts`) exige como lista.
+- Arreglo: `altTitles: []`. La fixture del álbum no trae títulos alternativos y no se inventan campos.
+- Prueba: `luscious.test.js` ahora importa el validador compilado de la app (`RYUUNEST_REPO/packages/core/dist/runtimes/contractShape.js`) y valida `details`, `home`, `latest` y `pages`. Rojo antes del arreglo (`«altTitles» debe ser una lista`), verde después. `tools/hermes-patterns.test.mjs` en verde.
+- Paquete: `packages/luscious-0.1.3.zip` con `ryuunest-module pack` (SHA-256 `95ea35ccb2db40b6b1a73a413f6d8a5eb36f156c0b5fce7d4df2cc4e07d0d2b4`, 12 122 bytes). `index.json` actualizado con la entrada entera.
+- Sin verificar: la app en el teléfono tras instalar 0.1.3 (depende de Cloudflare en vivo, que los tests no cubren).
+
 ### 2026-11-27 · `e-hentai`, `fanfox`, `hitomi`, `luscious`, `mangation` 0.1.2: fix Hermes real (`home`)
 
 - Causa real: el `await` dentro de una flecha async con parámetros desestructurados (`SECTIONS.map(async ({ id }) => …)`) devuelve `undefined` en Hermes (app). Arreglo: `for…of` secuencial dentro de una `async function`, igual que YupManga (que funciona en el teléfono). Es secuencial a propósito: el host ya serializa por dominio.

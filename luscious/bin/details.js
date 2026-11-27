@@ -40,6 +40,7 @@ export async function details(host, seriesId) {
       ...tagsOf(album, null),
     ],
     status: "completed",
+    altTitles: [],
     extra,
     chapters: [
       {
