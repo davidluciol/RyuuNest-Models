@@ -21,6 +21,8 @@ const SELECTORS = {
   popular: { items: "div.element", score: "span.score", demography: "span.demography" },
   latest: { items: "div.upload-file-row", time: "span.number", groups: "span.groups" },
   details: {
+    // Instantánea del diseño anterior (zonatmo 0.3.0): el sitio actual usa `h1.zt-hd__title` y
+    // compañía; los selectores vigentes están en `zonatmo/bin/config.js`.
     title: "h1.element-title",
     description: "p.element-description",
     cover: "div.element-image img.book-thumbnail",
