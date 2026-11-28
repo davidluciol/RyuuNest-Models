@@ -2,7 +2,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import create from "../module.js";
+import { sha256 } from "./utils/sha256.js";
 
 const fixture = (name) => readFileSync(new URL(`./fixtures/${name}`, import.meta.url), "utf8");
 // 0x00B0E100 tiene bytes ≥ 0x80: `text()` los destrozaría, `bytes()` no.
@@ -66,7 +68,8 @@ test("hitomi: search por namespace, tipo, filtros y lista inexistente", async ()
   assert.ok(requests.some((r) => r.url.endsWith("/artist/autor%20falso-spanish.nozomi")));
   await mod.search("", 1, { type: "doujinshi", language: "english" });
   assert.ok(requests.some((r) => r.url.endsWith("/type/doujinshi-english.nozomi")));
-  assert.deepEqual(await mod.search("nada", 1, {}), { items: [], hasNext: false });
+  // T45: una palabra suelta ahora busca por título; la lista inexistente se prueba con namespace.
+  assert.deepEqual(await mod.search("tag:nada", 1, {}), { items: [], hasNext: false });
   assert.equal((await mod.search("", 2, {})).items.length, 0); // 416
 });
 
@@ -99,4 +102,67 @@ test("hitomi: errores tipados", async () => {
   await assert.rejects(() => mod.details("abc"), { code: "NOT_FOUND" });
   const old = create({ fetch: async () => ({ status: 206, text: async () => "" }) });
   await assert.rejects(() => old.latest(1), { code: "UNSUPPORTED" });
+});
+
+// T45 · búsqueda por título con el índice B-tree. Fixtures reales de «ceniza» (2026-11-28,
+// galleriesindex 1795889453): 7 nodos y un bloque de datos con un solo ID, 1500827.
+const searchFixture = (name) => readFileSync(new URL(`./fixtures/search/${name}`, import.meta.url));
+
+function searchHost(requests, { spanish = [] } = {}) {
+  const base = makeHost(requests);
+  return {
+    fetch: async (url, init = {}) => {
+      const range = /bytes=(\d+)-/u.exec(init.headers?.Range ?? "");
+      const binary = (bytes) => ({ status: 206, text: async () => "", bytes: async () => new Uint8Array(bytes) });
+      if (url.includes("/galleriesindex/version")) {
+        requests.push({ url, headers: init.headers });
+        return { status: 200, text: async () => searchFixture("version.bin").toString("utf8") };
+      }
+      if (url.endsWith(".index") || url.endsWith(".data")) {
+        requests.push({ url, headers: init.headers });
+        const kind = url.endsWith(".index") ? "node" : "data";
+        try {
+          return binary(searchFixture(`${kind}-${range[1]}.bin`));
+        } catch {
+          // Nodo fuera de las fixtures: un nodo vacío (hoja sin claves) termina la búsqueda.
+          return binary(new Uint8Array(4 + 4 + 17 * 8));
+        }
+      }
+      if (url.endsWith("/index-spanish.nozomi")) {
+        requests.push({ url, headers: init.headers });
+        return { status: 200, text: async () => "", bytes: async () => nozomi(spanish) };
+      }
+      return base.fetch(url, init);
+    },
+  };
+}
+
+test("hitomi: sha256 en JS puro coincide con node:crypto", () => {
+  for (const text of ["", "ceniza", "dragón de ceniza", "a".repeat(200)]) {
+    assert.equal(Buffer.from(sha256(text)).toString("hex"), createHash("sha256").update(text).digest("hex"));
+  }
+});
+
+test("hitomi: buscar por título recorre el B-tree con Range y arma la tarjeta", async () => {
+  const requests = [];
+  const { items, hasNext } = await create(searchHost(requests)).search("Ceniza", 1, { language: "all" });
+  assert.deepEqual(items.map((item) => item.id), ["9000001"]); // el fixture de galería es siempre 9000001
+  assert.equal(hasNext, false);
+  const nodes = requests.filter((r) => r.url.endsWith(".index"));
+  assert.equal(nodes.length, 7);
+  assert.ok(nodes.every((r) => /^bytes=\d+-\d+$/u.test(r.headers.Range)));
+  assert.ok(requests.some((r) => r.url.includes("galleries/1500827.js")));
+});
+
+test("hitomi: el título se cruza con el idioma elegido", async () => {
+  const fuera = await create(searchHost([], { spanish: [42] })).search("ceniza", 1, { language: "spanish" });
+  assert.deepEqual(fuera.items, []);
+  const dentro = await create(searchHost([], { spanish: [1500827] })).search("ceniza", 1, { language: "spanish" });
+  assert.equal(dentro.items.length, 1);
+});
+
+test("hitomi: una palabra que no está en el índice no da resultados", async () => {
+  const { items, hasNext } = await create(searchHost([])).search("zzzz-nada", 1, { language: "all" });
+  assert.deepEqual(items, []);
+  assert.equal(hasNext, false);
 });
