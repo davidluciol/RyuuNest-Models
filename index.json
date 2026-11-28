@@ -57,7 +57,7 @@
     {
       "id": "hitomi",
       "name": "Hitomi.la",
-      "version": "0.1.2",
+      "version": "0.2.0",
       "apiVersion": 1,
       "runtime": "script",
       "kinds": ["manga"],
@@ -66,9 +66,9 @@
       "permissions": {
         "domains": ["hitomi.la", "gold-usergeneratedcontent.net"]
       },
-      "package": "packages/hitomi-0.1.2.zip",
-      "sha256": "6fdb350fd6e11534b82cae2002ea45a4ca0f6ad380643961aeaa4b7f92152eec",
-      "size": 10827
+      "package": "packages/hitomi-0.2.0.zip",
+      "sha256": "386c6cd440b58f8570aacfcc017f90d8c29a586f56269c0ea1dbeaf29615529e",
+      "size": 18667
     },
     {
       "id": "luscious",

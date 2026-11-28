@@ -211,6 +211,14 @@
 - **Compatibilidad:** las apps anteriores ignoran el campo (el validador no rechaza claves extra; comprobado con `validateRepoIndex`).
 - **Paquetes** con `ryuunest-module pack` (m440 22329 B, luscious 12912 B). El de yupmanga se rehízo con la misma lista de 16 archivos de 0.2.0 (`pack` metía `bin/fixtures/`): 29412 B. Pruebas con `RYUUNEST_REPO` en verde (5/5, 8/8, 10/10).
 
+### 2026-11-28 · `hitomi` 0.2.0: búsqueda por título (T45)
+
+- **Qué:** una palabra sin `namespace:` ya no se trata como etiqueta: busca por título con el índice B-tree del sitio (`galleriesindex`), como `search.js` de hitomi.la (revisado el 2026-11-28): versión en `galleriesindex/version`, clave = 4 primeros bytes del SHA-256 de la palabra, nodos de 464 bytes (B = 16) por `Range` y datos `[n, id…]` big-endian. Varias palabras y `namespace:valor` se cruzan (todas deben cumplirse) y, con un idioma concreto, también `index-<idioma>.nozomi` (español ≈ 248 KB). Sin OR ni términos negativos.
+- **SHA-256 en JS puro** (`bin/utils/sha256.js`): Hermes no trae WebCrypto. Probado contra `node:crypto`.
+- **Fixtures reales** de «ceniza» en `bin/fixtures/search/` (7 nodos y un bloque con el ID 1500827). En vivo: «ceniza» → «Hai no Yuki | Nieve Color Ceniza»; «sensei maid» (español) → 24 resultados en < 1 s y ~40 peticiones.
+- **`searchHint`** (nuevo en la app, RyuuNest T45): «Título o tag:valor, artist:nombre…».
+- Paquete con `ryuunest-module pack`: 18667 B, sha256 `386c6cd4…`. Cierra el issue #31.
+
 ## Preguntas abiertas
 
 1. **Existencia del repo:** ¿está ya creado `davidluciol/RyuuNest-Models` en GitHub, o se creará al subir estos documentos? (de esto depende la URL que se anuncie en la app).
