@@ -218,6 +218,11 @@
 - **Fixtures reales** de «ceniza» en `bin/fixtures/search/` (7 nodos y un bloque con el ID 1500827). En vivo: «ceniza» → «Hai no Yuki | Nieve Color Ceniza»; «sensei maid» (español) → 24 resultados en < 1 s y ~40 peticiones.
 - **`searchHint`** (nuevo en la app, RyuuNest T45): «Título o tag:valor, artist:nombre…».
 - Paquete con `ryuunest-module pack`: 18667 B, sha256 `386c6cd4…`. Cierra el issue #31.
+### 2026-11-28 · `fanfox` 0.1.3: aviso +18 (issue #30)
+
+- **Causa real en la app, no en el módulo:** el módulo manda `Cookie: isAdult=1` desde 0.1.0 y el sitio la respeta (con ella, 120 capítulos de `isekai_meikyuu_de_harem_o`; sin ella, un aviso con `#checkAdult`). En Android, OkHttp sustituía esa cabecera por las cookies del tarro del WebView. Arreglado en RyuuNest (plugin `withOkHttpPing`, davidluciol/RyuuNest#188).
+- **Módulo:** si aun así llega el aviso, `details` da `BLOCKED` («FanFox mostró el aviso +18…») en vez de una ficha con 0 capítulos. Fixtures reales `details-adult.html` (aviso) y `details-adult-ok.html` (con la cookie). 12/12 en verde.
+- Paquete con `ryuunest-module pack`: 32316 B, sha256 `e13c5bf2…`.
 
 ## Preguntas abiertas
 
