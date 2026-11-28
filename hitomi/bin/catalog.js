@@ -2,7 +2,9 @@
 
 import { DEFAULT_LANGUAGE, LANGUAGES, NAMESPACES, ORDERS, TYPES } from "./config.js";
 import { galleryInfo, loadGg, thumbnailUrl } from "./gallery.js";
-import { readIds } from "./nozomi.js";
+import { idsForWord, indexVersion } from "./btree.js";
+import { PAGE_SIZE } from "./config.js";
+import { readAllIds, readIds } from "./nozomi.js";
 import { imageHeaders } from "./utils/http.js";
 
 const SECTIONS = [ORDERS[0], ORDERS[2]];
@@ -58,7 +60,58 @@ export function listPath({ term, type, order, language }) {
   return chosen.tag === null ? `${chosen.area}-${lang}` : `${chosen.area}/${chosen.tag}-${lang}`;
 }
 
+/** Palabras de la consulta como las trata el sitio: minúsculas, `_` = espacio. */
+export function queryTerms(query) {
+  return String(query ?? "")
+    .toLowerCase()
+    .trim()
+    .split(/\s+/u)
+    .filter(Boolean)
+    .map((term) => term.replace(/_/gu, " "));
+}
+
+// shortcut: por instancia del módulo solo se recuerda la última búsqueda (la paginación no repite
+// el recorrido); si se alternan consultas, cada cambio vuelve a leer el índice.
+const lastSearch = new WeakMap();
+
+/**
+ * T45 · IDs de una búsqueda con texto libre: cada palabra por el B-tree, cada `namespace:valor`
+ * por su lista y, con un idioma concreto, cruzado con `index-<idioma>`. Todas deben cumplirse.
+ */
+async function textSearchIds(host, terms, language) {
+  const lang = LANGUAGES.some((l) => l.value === language) ? language : DEFAULT_LANGUAGE;
+  const key = `${lang}|${terms.join(" ")}`;
+  const cached = lastSearch.get(host);
+  if (cached?.key === key) return cached.ids;
+  const version = await indexVersion(host);
+  const lists = [];
+  for (const term of terms) {
+    lists.push(
+      term.includes(":")
+        ? await readAllIds(host, listPath({ term: term.replace(/ /gu, "_"), language: lang }))
+        : await idsForWord(host, version, term),
+    );
+  }
+  if (lang !== "all") lists.push(await readAllIds(host, `index-${lang}`));
+  const [first, ...rest] = lists.sort((a, b) => a.length - b.length);
+  const sets = rest.map((list) => new Set(list));
+  const ids = (first ?? [])
+    .filter((id) => sets.every((set) => set.has(id)))
+    .sort((a, b) => Number(b) - Number(a)); // más nuevo primero
+  lastSearch.set(host, { key, ids });
+  return ids;
+}
+
 async function page(host, query, number, filters) {
+  const terms = queryTerms(query);
+  if (terms.some((term) => !term.includes(":"))) {
+    const ids = await textSearchIds(host, terms, filters.language);
+    const start = (pageNumber(number) - 1) * PAGE_SIZE;
+    return {
+      items: await summaries(host, ids.slice(start, start + PAGE_SIZE)),
+      hasNext: ids.length > start + PAGE_SIZE,
+    };
+  }
   const { ids, hasNext } = await readIds(host, listPath({ ...filters, term: query }), pageNumber(number));
   return { items: await summaries(host, ids), hasNext };
 }

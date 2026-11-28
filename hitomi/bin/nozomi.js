@@ -30,3 +30,14 @@ export async function readIds(host, path, page) {
   }
   return { ids: idsFrom(bytes), hasNext: bytes.length === PAGE_SIZE * 4 };
 }
+
+/** La lista `path` completa (para cruzarla con una búsqueda). Lista inexistente = vacía. */
+export async function readAllIds(host, path) {
+  const url = `${CONTENT_URL}/${path}.nozomi`;
+  const response = await request(host, url, undefined, [404]);
+  if (response.status === 404) return [];
+  if (typeof response.bytes !== "function") {
+    throw fail("UNSUPPORTED", "Esta versión de la app no expone host.bytes(), necesario para leer las listas de Hitomi", { url });
+  }
+  return idsFrom(await response.bytes());
+}

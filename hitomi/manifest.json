@@ -1,7 +1,7 @@
 {
   "id": "hitomi",
   "name": "Hitomi.la",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "apiVersion": 1,
   "runtime": "script",
   "kinds": ["manga"],
@@ -12,5 +12,6 @@
   "permissions": {
     "domains": ["hitomi.la", "gold-usergeneratedcontent.net"]
   },
+  "searchHint": "Título o tag:valor, artist:nombre…",
   "entry": "module.js"
 }
