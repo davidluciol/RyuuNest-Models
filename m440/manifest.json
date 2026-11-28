@@ -1,12 +1,13 @@
 {
   "id": "m440",
   "name": "M440",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "apiVersion": 1,
   "runtime": "script",
   "kinds": ["manga", "manhwa"],
   "lang": "es",
   "nsfw": true,
+  "antiBot": true,
   "baseUrl": "https://m440.in",
   "capabilities": ["popular", "latest", "search", "details", "pages", "home", "list", "filters"],
   "permissions": {
