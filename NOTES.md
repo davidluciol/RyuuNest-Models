@@ -205,6 +205,12 @@
 - **Pendiente:** confirmar que el CDN vuelve a resolver antes de dar por útil el módulo en la app; el mantenedor decide si hay un host alternativo del sitio (sin inventarlo).
 - **2026-11-27:** el CDN sigue aparcado; el mantenedor decide **retirar `visormanga` de `index.json`** hasta que vuelva. Para republicarlo: restaurar su entrada con la versión, `sha256` y `size` del último `.zip` (`packages/visormanga-0.1.1.zip`).
 
+### 2026-11-28 · `antiBot` en `m440` 0.2.3, `luscious` 0.1.5 y `yupmanga` 0.2.1
+
+- **Qué:** campo opcional `"antiBot": true` en el manifest y en la entrada de `index.json` (contrato de RyuuNest, issue davidluciol/RyuuNest#183). La app avisa en la hoja de instalación y en el aviso +18 de primer uso de que el sitio a veces pide resolver un reto de Cloudflare (o similar). Lista elegida por el mantenedor: M440, Luscious y YupManga (ZonaTMO no).
+- **Compatibilidad:** las apps anteriores ignoran el campo (el validador no rechaza claves extra; comprobado con `validateRepoIndex`).
+- **Paquetes** con `ryuunest-module pack` (m440 22329 B, luscious 12912 B). El de yupmanga se rehízo con la misma lista de 16 archivos de 0.2.0 (`pack` metía `bin/fixtures/`): 29412 B. Pruebas con `RYUUNEST_REPO` en verde (5/5, 8/8, 10/10).
+
 ## Preguntas abiertas
 
 1. **Existencia del repo:** ¿está ya creado `davidluciol/RyuuNest-Models` en GitHub, o se creará al subir estos documentos? (de esto depende la URL que se anuncie en la app).

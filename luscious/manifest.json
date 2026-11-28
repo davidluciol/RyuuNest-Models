@@ -1,12 +1,13 @@
 {
   "id": "luscious",
   "name": "Luscious",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "apiVersion": 1,
   "runtime": "script",
   "kinds": ["manga", "comic"],
   "lang": "es",
   "nsfw": true,
+  "antiBot": true,
   "baseUrl": "https://www.luscious.net",
   "capabilities": ["popular", "latest", "search", "details", "pages", "home", "list", "filters"],
   "permissions": {
