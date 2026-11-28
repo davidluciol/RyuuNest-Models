@@ -196,3 +196,21 @@ test("fanfox: pages tipa los errores", { skip: !repo }, async () => {
   assert.equal(await code(() => reply(200, fixture("page-other.html"))), "PARSE");
   assert.equal(await code(() => reply(200, ""), "serie/../../x"), "NOT_FOUND");
 });
+
+// Models #30 · serie +18 real (isekai_meikyuu_de_harem_o, 2026-11-28): sin la cookie el sitio
+// manda un aviso en vez de la lista; con `isAdult=1` (que el módulo envía) salen los capítulos.
+test("fanfox: la ficha +18 con la cookie trae sus capítulos", async () => {
+  const requests = [];
+  const series = await create(makeHost(() => reply(200, fixture("details-adult-ok.html")), requests)).details("isekai_meikyuu_de_harem_o");
+  assert.ok(series.chapters.length >= 100, `capítulos: ${series.chapters.length}`);
+  assert.match(requests[0].headers.Cookie, /(^|; )isAdult=1(;|$)/u);
+});
+
+test("fanfox: si llega el aviso +18 es BLOCKED claro, no una ficha sin capítulos", async () => {
+  const route = () => reply(200, fixture("details-adult.html"));
+  await assert.rejects(() => create(makeHost(route)).details("isekai_meikyuu_de_harem_o"), (error) => {
+    assert.equal(error.code, "BLOCKED");
+    assert.match(error.message, /\+18/u);
+    return true;
+  });
+});

@@ -106,7 +106,7 @@
     {
       "id": "fanfox",
       "name": "FanFox",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "apiVersion": 1,
       "runtime": "script",
       "kinds": ["manga", "manhwa", "manhua"],
@@ -115,9 +115,9 @@
       "permissions": {
         "domains": ["fanfox.net", "mangafox.me", "mfcdn.net"]
       },
-      "package": "packages/fanfox-0.1.2.zip",
-      "sha256": "fe886ce150c56780d8680a69dabeb64a1bfc13a0fb016cf3f5bc0bda810f6b63",
-      "size": 16149
+      "package": "packages/fanfox-0.1.3.zip",
+      "sha256": "e13c5bf20d9942b1591d855237266b76aaecf2b5c14842ac1663badb5e022715",
+      "size": 32316
     },
     {
       "id": "mangation",

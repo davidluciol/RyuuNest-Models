@@ -211,6 +211,12 @@
 - **Compatibilidad:** las apps anteriores ignoran el campo (el validador no rechaza claves extra; comprobado con `validateRepoIndex`).
 - **Paquetes** con `ryuunest-module pack` (m440 22329 B, luscious 12912 B). El de yupmanga se rehízo con la misma lista de 16 archivos de 0.2.0 (`pack` metía `bin/fixtures/`): 29412 B. Pruebas con `RYUUNEST_REPO` en verde (5/5, 8/8, 10/10).
 
+### 2026-11-28 · `fanfox` 0.1.3: aviso +18 (issue #30)
+
+- **Causa real en la app, no en el módulo:** el módulo manda `Cookie: isAdult=1` desde 0.1.0 y el sitio la respeta (con ella, 120 capítulos de `isekai_meikyuu_de_harem_o`; sin ella, un aviso con `#checkAdult`). En Android, OkHttp sustituía esa cabecera por las cookies del tarro del WebView. Arreglado en RyuuNest (plugin `withOkHttpPing`, davidluciol/RyuuNest#188).
+- **Módulo:** si aun así llega el aviso, `details` da `BLOCKED` («FanFox mostró el aviso +18…») en vez de una ficha con 0 capítulos. Fixtures reales `details-adult.html` (aviso) y `details-adult-ok.html` (con la cookie). 12/12 en verde.
+- Paquete con `ryuunest-module pack`: 32316 B, sha256 `e13c5bf2…`.
+
 ## Preguntas abiertas
 
 1. **Existencia del repo:** ¿está ya creado `davidluciol/RyuuNest-Models` en GitHub, o se creará al subir estos documentos? (de esto depende la URL que se anuncie en la app).

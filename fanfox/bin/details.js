@@ -51,6 +51,10 @@ export async function details(host, seriesId) {
   if (!SERIES_ID.test(slug)) throw fail("NOT_FOUND", `Identificador de serie no válido: ${seriesId}`);
   const url = `${BASE_URL}/manga/${slug}/`;
   const doc = host.html(await fetchText(host, url));
+  // Models #30: sin la cookie `isAdult=1` el sitio manda un aviso en vez de la lista.
+  if (doc.select("#checkAdult").length > 0) {
+    throw fail("BLOCKED", "FanFox mostró el aviso +18 en vez de los capítulos (no llegó la cookie isAdult=1)", { url });
+  }
   const title = textOf(doc, ".detail-info-right-title-font");
   if (title === "") throw fail("PARSE", "La página no es una ficha de FanFox", { url, selector: ".detail-info-right-title-font" });
   const cover = doc.select("img.detail-info-cover-img")[0]?.attr("src")?.replace(/^(https?:)?\/\//u, "https://");
